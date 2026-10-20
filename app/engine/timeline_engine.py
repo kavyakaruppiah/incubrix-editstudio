@@ -172,6 +172,13 @@ class TimelineEngine:
             source_intervals = [(src_start, src_end)]
 
         new_segments = self._cut_source_intervals(self.timeline.segments, source_intervals)
+        if len(new_segments) == len(self.timeline.segments) and all(
+            new.source_start == current.source_start
+            and new.source_end == current.source_end
+            and new.speed == current.speed
+            for new, current in zip(new_segments, self.timeline.segments)
+        ):
+            raise ValueError("Cut range does not overlap retained content; it may already be removed")
         if not new_segments:
             raise TimelineValidationError("Cannot cut the entire video; keep at least one source interval")
 

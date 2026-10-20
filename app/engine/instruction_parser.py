@@ -798,8 +798,22 @@ class InstructionParser:
 
         clean_text = raw_text.rstrip(".!?;")
         proposal = None
+        tail_match = re.search(
+            r"\bremove\s+everything\s+after\s+(?:i\s+say\s+|the\s+word\s+|the\s+phrase\s+)?[\"']?(?P<phrase>[\w'-]+(?:\s+[\w'-]+)*)[\"']?$",
+            clean_text,
+            re.IGNORECASE,
+        )
+        if tail_match:
+            proposal = OperationProposal(
+                operation_type=OperationType.CUT_RANGE,
+                parameters={
+                    "phrase": tail_match.group("phrase").strip(),
+                    "cut_after_phrase": True,
+                    "time_basis": "source",
+                },
+            )
         if re.search(r"\b(?:hours?|hrs?|minutes?|mins?|seconds?|secs?|a\s+minute|one\s+minute|\d+h(?:\d+m)?)\b", raw_text, re.IGNORECASE):
-            proposal = self._parse_natural_time_instruction(raw_text, timeline)
+            proposal = proposal or self._parse_natural_time_instruction(raw_text, timeline)
         proposal = proposal or self.registry.parse(clean_text) or self.registry.parse(raw_text)
         if not proposal:
             raise ValueError(f"Unrecognized instruction: '{raw_text}'. Please specify an action such as cut, keep, remove phrase, speed, mute, bleep, caption, or undo.")
@@ -858,7 +872,7 @@ class InstructionParser:
         params = proposal.parameters
 
 
-        if op_type in (OperationType.REMOVE_PHRASE, OperationType.MUTE, OperationType.BLEEP, OperationType.ADD_CAPTION):
+        if op_type in (OperationType.REMOVE_PHRASE, OperationType.MUTE, OperationType.BLEEP, OperationType.ADD_CAPTION, OperationType.CUT_RANGE):
             phrase = params.get("phrase") or params.get("anchor_phrase")
             if phrase:
                 # Check occurrence qualifiers: "first occurrence", "second occurrence", "last occurrence", or speaker
@@ -905,9 +919,15 @@ class InstructionParser:
                 if len(occurrences) == 1:
                     target_words = occurrences[0]
                     self._inject_words_into_proposal(proposal, target_words)
+                    if params.get("cut_after_phrase"):
+                        params["end"] = timeline.source_metadata.duration
+                        params["end_time"] = timeline.source_metadata.duration
                 elif occurrence_idx is not None:
                     target_words = occurrences[occurrence_idx]
                     self._inject_words_into_proposal(proposal, target_words)
+                    if params.get("cut_after_phrase"):
+                        params["end"] = timeline.source_metadata.duration
+                        params["end_time"] = timeline.source_metadata.duration
                 else:
                     # Ambiguous! Must ask clarification
                     options: List[ClarificationOption] = []
@@ -919,12 +939,15 @@ class InstructionParser:
                         opt_id = f"opt_{idx + 1}"
                         opt_label = f"Occurrence {idx + 1}: '{text_snippet}' at {start_s:.2f}s - {end_s:.2f}s ({spk})"
                         copy_params = dict(params)
+                        target_start = occ[-1].end if params.get("cut_after_phrase") else start_s
+                        target_end = timeline.source_metadata.duration if params.get("cut_after_phrase") else end_s
+                        copy_params.update({"start": target_start, "end": target_end})
                         target_data = {
                             "operation_type": op_type.value,
                             "parameters": copy_params,
                             "word_ids": [w.id for w in occ],
-                            "start": start_s,
-                            "end": end_s,
+                            "start": target_start,
+                            "end": target_end,
                         }
                         options.append(ClarificationOption(id=opt_id, label=opt_label, detail=f"{spk} at {start_s:.2f}s - {end_s:.2f}s", target_data=target_data))
 
@@ -949,3 +972,7 @@ class InstructionParser:
             proposal.parameters["end_time"] = proposal.parameters["end"]
         elif proposal.operation_type == OperationType.ADD_CAPTION:
             proposal.parameters["anchor_word_ids"] = [w.id for w in words]
+        elif proposal.operation_type == OperationType.CUT_RANGE and proposal.parameters.get("cut_after_phrase"):
+            proposal.parameters["start"] = words[-1].end
+            proposal.parameters["end_time"] = words[-1].end
+            proposal.parameters["word_ids"] = [w.id for w in words]
