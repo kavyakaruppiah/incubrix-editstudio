@@ -144,17 +144,21 @@ class UnifiedTranscriber(TranscriptionAdapter):
         model_size: Optional[str] = None,
         vad_filter: bool = True,
     ) -> Transcript:
-        try:
-            adapter = self.whisper_adapter
-            if model_size and model_size != self.model_size:
-                adapter = FasterWhisperAdapter(model_size=model_size)
+        adapter = self.whisper_adapter
+        selected_model = model_size or self.model_size
+        if model_size and model_size != self.model_size:
+            adapter = FasterWhisperAdapter(model_size=model_size)
 
-            available, _ = adapter.is_available()
-            if available:
-                return adapter.transcribe(str(wav_path), language=language, vad_filter=vad_filter)
-        except Exception as e:
-            logger.warning(f"Whisper transcription failed, proceeding to fallback: {e}")
-        return Transcript(words=[])
+        available, message = adapter.is_available()
+        if not available:
+            raise RuntimeError(message)
+        try:
+            return adapter.transcribe(str(wav_path), language=language, vad_filter=vad_filter)
+        except Exception as exc:
+            logger.exception("Whisper transcription failed for model %s", selected_model)
+            raise RuntimeError(
+                f"Speech transcription failed with Whisper model '{selected_model}': {exc}"
+            ) from exc
 
     def _transcribe_with_google_api(self, wav_path: Path, duration: float) -> Optional[Transcript]:
         try:

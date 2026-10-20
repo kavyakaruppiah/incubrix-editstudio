@@ -430,7 +430,7 @@ async def upload_voiceover_document(
 def generate_transcript(
     media_id: str,
     language: Optional[str] = Query("auto", description="Transcription language: auto, en, ta, or language code"),
-    model_size: Optional[str] = Query("tiny", description="Whisper model size: tiny, base, small, medium"),
+    model_size: Optional[str] = Query(None, description="Whisper model size: tiny, base, small, medium (defaults to WHISPER_MODEL_SIZE)"),
     vad_filter: bool = Query(True, description="Enable Voice Activity Detection filtering"),
 ):
     manifest = media_service.get_media_manifest(media_id)

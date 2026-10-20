@@ -1786,28 +1786,33 @@ async function triggerAutoTranscription() {
 }
 
 async function pollTranscriptionJob(jobId) {
-  const interval = setInterval(async () => {
-    try {
+  const deadline = Date.now() + 10 * 60 * 1000;
+  try {
+    while (Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
       const res = await fetch(`/api/v1/transcript/status/${jobId}`);
-      const job = await res.json();
+      const job = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(job.detail || "Could not check transcription status.");
+      if (job.status === "failed") {
+        throw new Error(job.error || "Whisper speech transcription failed.");
+      }
       if (job.status === "completed") {
-        clearInterval(interval);
-        generateTranscriptBtn.disabled = false;
-        generateTranscriptBtn.textContent = "Auto-Transcribe";
         await refreshTimeline();
         await fetchSmartSuggestions();
-      } else if (job.status === "failed") {
-        clearInterval(interval);
-        generateTranscriptBtn.disabled = false;
-        generateTranscriptBtn.textContent = "Auto-Transcribe";
-        showErrorModal("Transcription Failed", job.error || "Whisper ASR execution failed.");
+        const words = currentTimeline?.transcript?.words || [];
+        if (!words.length) {
+          showErrorModal("No Speech Detected", "No spoken words were found. Check that the video has clear audio, or import an SRT/VTT transcript.");
+        }
+        return;
       }
-    } catch (e) {
-      clearInterval(interval);
-      generateTranscriptBtn.disabled = false;
-      generateTranscriptBtn.textContent = "Auto-Transcribe";
     }
-  }, 1200);
+    throw new Error("Transcription is taking too long. Check Render logs and retry.");
+  } catch (e) {
+    showErrorModal("Transcription Failed", e.message || "Whisper speech transcription failed.");
+  } finally {
+    generateTranscriptBtn.disabled = false;
+    generateTranscriptBtn.textContent = "Auto-Transcribe";
+  }
 }
 
 async function loadSampleTranscript() {

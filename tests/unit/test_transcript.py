@@ -60,6 +60,18 @@ def test_40_missing_optional_transcription_model_behaviour():
             adapter.transcribe("dummy.mp4")
 
 
+def test_whisper_runtime_failure_is_reported_not_silently_returned_as_empty(monkeypatch):
+    transcriber = UnifiedTranscriber(model_size="tiny")
+    monkeypatch.setattr(transcriber.whisper_adapter, "is_available", lambda: (True, "ready"))
+
+    def fail_transcription(*args, **kwargs):
+        raise OSError("model download failed")
+
+    monkeypatch.setattr(transcriber.whisper_adapter, "transcribe", fail_transcription)
+    with pytest.raises(RuntimeError, match="Speech transcription failed.*model download failed"):
+        transcriber._transcribe_with_whisper(Path("audio.wav"), language="en")
+
+
 def test_cloud_transcription_fallback_is_disabled_by_default(tmp_path, monkeypatch):
     """Audio must remain local unless the Google fallback is explicitly enabled."""
     media_path = tmp_path / "source.mp4"

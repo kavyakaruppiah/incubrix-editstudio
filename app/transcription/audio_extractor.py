@@ -66,7 +66,7 @@ def extract_voice_audio(
         res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30)
         if res.returncode != 0:
             # Check if failure was due to no audio stream
-            if "does not contain any stream" in res.stderr or "Output file does not contain any stream" in res.stderr:
+            if "does not contain any stream" in res.stderr.lower():
                 return None
             # Fallback without audio filter if filter failed
             cmd_simple = [
@@ -76,10 +76,15 @@ def extract_voice_audio(
             ]
             res2 = subprocess.run(cmd_simple, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30)
             if res2.returncode != 0:
-                return None
+                details = (res2.stderr or res.stderr or "FFmpeg could not decode the audio stream.").strip()
+                raise AudioExtractionError(f"Audio extraction failed: {details[-1200:]}")
 
         if out_p.is_file() and out_p.stat().st_size > 100:
             return out_p
-        return None
-    except Exception:
-        return None
+        raise AudioExtractionError("FFmpeg completed but produced no usable audio file.")
+    except subprocess.TimeoutExpired as exc:
+        raise AudioExtractionError("Audio extraction timed out. Try a shorter video or a smaller upload.") from exc
+    except AudioExtractionError:
+        raise
+    except Exception as exc:
+        raise AudioExtractionError(f"Audio extraction failed: {exc}") from exc

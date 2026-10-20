@@ -558,10 +558,10 @@ paths:
           anyOf:
           - type: string
           - type: 'null'
-          description: 'Whisper model size: tiny, base, small, medium'
-          default: tiny
+          description: 'Whisper model size: tiny, base, small, medium (defaults to
+            WHISPER_MODEL_SIZE)'
           title: Model Size
-        description: 'Whisper model size: tiny, base, small, medium'
+        description: 'Whisper model size: tiny, base, small, medium (defaults to WHISPER_MODEL_SIZE)'
       - name: vad_filter
         in: query
         required: false
