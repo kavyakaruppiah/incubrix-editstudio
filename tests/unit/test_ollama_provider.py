@@ -90,6 +90,19 @@ def test_ollama_cloud_uses_key_and_chat_endpoint(monkeypatch):
     assert plan["actions"][0]["operation"] == "cut_range"
 
 
+def test_ollama_cloud_410_explains_retired_or_unavailable_model(monkeypatch):
+    adapter = OllamaInstructionAdapter(
+        "https://ollama.com", "retired-cloud-model", 1, api_key="test-secret"
+    )
+
+    def gone(request, timeout):
+        raise HTTPError(request.full_url, 410, "Gone", {}, io.BytesIO(b'{"error":"model is gone"}'))
+
+    monkeypatch.setattr(ollama_module, "urlopen", gone)
+    with pytest.raises(OllamaProviderError, match="no longer serves the configured model 'retired-cloud-model'"):
+        adapter.plan_prompt("Make it black and white", {})
+
+
 def test_ollama_cloud_availability_requires_key():
     adapter = OllamaInstructionAdapter("https://ollama.com", "cloud-model", 1, api_key="")
 

@@ -71,6 +71,11 @@ class OllamaInstructionAdapter:
                     ) from exc
                 if exc.code in (401, 403):
                     raise OllamaProviderError("Ollama rejected the API key. Check OLLAMA_API_KEY in your service environment.") from exc
+                if exc.code == 410 and self.is_cloud:
+                    raise OllamaProviderError(
+                        f"Ollama Cloud no longer serves the configured model '{self.model}' (HTTP 410). "
+                        "Update OLLAMA_MODEL in Render to a currently available cloud model, then redeploy."
+                    ) from exc
                 raise OllamaProviderError(f"Ollama returned HTTP {exc.code} for {path}.") from exc
             except (URLError, TimeoutError, OSError) as exc:
                 if attempt < len(self.TRANSIENT_RETRY_DELAYS_SECONDS):
