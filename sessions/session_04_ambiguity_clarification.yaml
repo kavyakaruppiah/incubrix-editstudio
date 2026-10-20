@@ -1,0 +1,9 @@
+video_path: tests/fixtures/sample_with_audio.mp4
+transcript_path: tests/fixtures/sample_transcript.json
+instructions:
+  - "remove phrase 'welcome to'"
+clarification_answers:
+  "0": "opt_1"
+render: false
+assertions:
+  expected_last_status: applied

@@ -1,0 +1,34 @@
+{
+  "measured_at_utc": "2026-10-19T14:29:35.705592+00:00",
+  "method": "synthetic 130 wpm transcript; cold parse cache; excludes transcription/rendering",
+  "model": "qwen2.5:1.5b",
+  "runs_per_duration": 1,
+  "durations": {
+    "5m": {
+      "transcript_word_count": 650,
+      "median_seconds": 32.6884,
+      "slowest_seconds": 32.6884,
+      "observations": [
+        {
+          "seconds": 32.6884,
+          "provider": "ollama",
+          "supported_count": 1,
+          "operations_count": 1
+        }
+      ]
+    },
+    "60m": {
+      "transcript_word_count": 7800,
+      "median_seconds": 34.7303,
+      "slowest_seconds": 34.7303,
+      "observations": [
+        {
+          "seconds": 34.7303,
+          "provider": "ollama",
+          "supported_count": 1,
+          "operations_count": 1
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+video_path: tests/fixtures/sample_with_audio.mp4
+transcript_path: tests/fixtures/sample_transcript.json
+instructions:
+  - "cut from 00:02 to 00:05"
+  - "cut from 00:06 to 00:08"
+  - "restore revision 1"
+render: false
+assertions:
+  expected_last_status: applied
+  expected_duration: 9.0

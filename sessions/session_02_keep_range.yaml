@@ -1,0 +1,8 @@
+video_path: tests/fixtures/sample_with_audio.mp4
+transcript_path: tests/fixtures/sample_transcript.json
+instructions:
+  - "keep only from 00:02 to 00:08"
+render: false
+assertions:
+  expected_last_status: applied
+  expected_duration: 6.0

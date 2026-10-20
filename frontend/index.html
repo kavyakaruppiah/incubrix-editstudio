@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IncuBrix EditStudio — AI Video Editor</title>
+  <meta name="description" content="IncuBrix EditStudio is a professional AI-assisted video editor for prompt-based editing, captions, effects, and verified video exports.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <!-- SCENE 1: WELCOME / LANDING SCREEN -->
+  <section id="landing-screen" class="landing-hero">
+    <div class="landing-nav">
+      <div class="brand">
+        <div class="brand-logo-icon">
+          <img class="brand-mark-image" src="/static/assets/incubrix-editstudio-mark.png" alt="" width="38" height="38" fetchpriority="high">
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">IncuBrix EditStudio</span>
+          <span class="brand-tagline-mini">Professional AI Video Editor</span>
+        </div>
+      </div>
+      <div class="landing-nav-actions">
+        <button id="btn-hero-projects" class="btn btn-secondary">Recent Projects</button>
+        <button id="btn-hero-demo-nav" class="btn btn-secondary">Explore Demo</button>
+        <button id="btn-hero-start-nav" class="btn btn-primary">Start Creating &rarr;</button>
+      </div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-sparkle">✨</span> AI-Powered Video Editing Studio
+      </div>
+      <h1 class="hero-title">Your vision. One prompt.<br><span class="gradient-text">A finished video.</span></h1>
+      <p class="hero-description">
+        Turn natural-language instructions into editable video timelines. Describe your cuts, pacing, subtitles, colors, and audio in plain language — preview the planned changes, fine-tune the timeline, and render verified MP4s through deterministic FFmpeg processing.
+      </p>
+
+      <div class="hero-cta-group">
+        <button id="btn-hero-start" class="btn btn-primary btn-xl">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Start Creating
+        </button>
+        <button id="btn-hero-demo" class="btn btn-secondary btn-xl">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Explore Demo Project
+        </button>
+      </div>
+
+      <!-- 3 Feature Highlights -->
+      <div class="feature-highlights-grid">
+        <div class="feature-card">
+          <div class="feature-icon feature-icon-purple">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3>Prompt-Powered Editing</h3>
+          <p>Describe cuts, trims, speed adjustments, 9:16 vertical social reels, and cinematic color grades in ordinary language.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon feature-icon-cyan">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <h3>Smart Captions & Anchoring</h3>
+          <p>Word-level Whisper speech recognition, karaoke yellow highlights, multilingual subtitle burning, and silence cleanup.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon feature-icon-emerald">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          </div>
+          <h3>Real MP4 Export</h3>
+          <p>No fake canvas simulations. Controlled backend process compiles real FFmpeg filter graphs into verified H.264/AAC videos.</p>
+        </div>
+      </div>
+
+      <!-- Preview Workspace Banner -->
+      <div class="hero-preview-workspace">
+        <div class="preview-header-bar">
+          <div class="preview-dots"><span></span><span></span><span></span></div>
+          <div class="preview-bar-title">IncuBrix EditStudio — Interactive Production Timeline</div>
+          <div class="preview-status-pill">● System Operational</div>
+        </div>
+        <div class="preview-inner-mockup">
+          <div class="mockup-left">
+            <div class="mockup-line" style="width: 70%"></div>
+            <div class="mockup-line" style="width: 90%"></div>
+            <div class="mockup-pill-row">
+              <span class="mockup-chip">1080p</span>
+              <span class="mockup-chip">30 fps</span>
+              <span class="mockup-chip">H.264</span>
+            </div>
+          </div>
+          <div class="mockup-center">
+            <div class="mockup-player-graphic">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Ready to transform media with AI</span>
+            </div>
+          </div>
+          <div class="mockup-right">
+            <div class="mockup-prompt-box">
+              <span class="prompt-typing">"Create a 30-second vertical reel, remove long pauses..."</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENE 2: CREATE OR OPEN PROJECT MODAL -->
+  <div id="project-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Project Manager</h3>
+        <button id="btn-close-project-modal" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="project-new-section">
+          <h4>Create New Project</h4>
+          <div class="project-input-row">
+            <input type="text" id="project-name-input" placeholder="e.g. Travel Reel 2027" value="My Edited Project">
+            <button id="btn-confirm-create-project" class="btn btn-primary">Create Session</button>
+          </div>
+        </div>
+
+        <div class="project-recent-section">
+          <div class="section-title-row">
+            <h4>Saved Projects</h4>
+            <button id="btn-refresh-projects" class="btn btn-secondary btn-sm">Refresh</button>
+          </div>
+          <div id="recent-projects-list" class="recent-projects-list">
+            <div class="empty-state">No saved projects yet. Upload a video or load demo to begin.</div>
+          </div>
+        </div>
+
+        <div class="upload-guidelines-box">
+          <h5>Supported Formats & Limits</h5>
+          <p>MP4, MOV, MKV up to 500MB. Audio codecs: AAC, MP3, PCM. Video: H.264, HEVC.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APPLICATION WORKSPACE -->
+  <div id="main-app-layout" class="app-layout hidden">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <button id="btn-back-to-landing" class="btn-icon" title="Return to Home">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="brand-badge"><img class="header-brand-mark" src="/static/assets/incubrix-editstudio-mark.png" alt="" width="26" height="26"> <span>IncuBrix EditStudio</span></div>
+        <div class="project-title-wrapper">
+          <span id="active-project-name" class="project-name-display" title="Click to rename">Untitled Project</span>
+          <span class="project-edit-hint" id="btn-open-project-manager" title="Manage Projects">📂 Projects</span>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <div id="service-status" class="status-indicator">
+          <span class="status-dot"></span>
+          <span id="service-status-text">Checking Service...</span>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-compare-toggle" class="btn btn-secondary" title="Toggle between Original and Edited Output" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="12" y1="3" x2="12" y2="17"/></svg>
+            <span id="compare-btn-text">Compare: Off</span>
+          </button>
+          <button id="btn-undo" class="btn btn-secondary" title="Undo last edit (Ctrl+Z)" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+            Undo
+          </button>
+          <button id="btn-redo" class="btn btn-secondary" title="Redo last undone edit (Ctrl+Y)" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
+            Redo
+          </button>
+          <label class="export-setting" title="H.264 quality. Lower CRF keeps more detail and creates larger files.">
+            Quality
+            <select id="export-quality" class="select-sm" aria-label="Export quality">
+              <option value="16">High</option><option value="20" selected>Balanced</option><option value="26">Smaller</option>
+            </select>
+          </label>
+          <label class="export-setting" title="Output frames per second">
+            FPS
+            <select id="export-frame-rate" class="select-sm" aria-label="Export frame rate">
+              <option value="24">24</option><option value="25">25</option><option value="30" selected>30</option><option value="50">50</option><option value="60">60</option>
+            </select>
+          </label>
+          <label class="export-setting" title="Faster encoding finishes sooner; slower presets can improve compression efficiency.">
+            Speed
+            <select id="export-preset" class="select-sm" aria-label="Export encoding speed">
+              <option value="veryfast" selected>Fast</option><option value="fast">Balanced</option><option value="medium">Detailed</option><option value="slow">Slow</option>
+            </select>
+          </label>
+          <button id="btn-render" class="btn btn-primary" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Render MP4
+          </button>
+          <button id="btn-export-otio" class="btn btn-secondary" disabled title="Download an OpenTimelineIO timeline linked to the original media">
+            Export OTIO
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Grid -->
+    <main class="main-content">
+      <!-- Left Column: Source Media, Assets & Properties -->
+      <section class="panel media-panel">
+        <div class="panel-header">
+          <h2>Source & Assets</h2>
+          <span id="media-id-tag" class="tag tag-dim">No Media Loaded</span>
+        </div>
+
+        <!-- SCENE 3: VIDEO UPLOAD STUDIO -->
+        <div id="upload-zone" class="upload-dropzone">
+          <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <div class="upload-text">
+            <h3>Drag & Drop Video Studio</h3>
+            <p>Upload raw MP4, MOV, or MKV footage (up to 500MB)</p>
+          </div>
+          <div class="upload-btn-row">
+            <label class="btn btn-secondary file-upload-btn">
+              Browse Files
+              <input type="file" id="file-input" accept="video/mp4,video/quicktime,video/x-matroska" hidden>
+            </label>
+            <button id="btn-load-demo-inline" class="btn btn-secondary">Load Demo File</button>
+          </div>
+          <div id="upload-progress-bar" class="progress-bar hidden">
+            <div id="upload-progress-fill" class="progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Video Player Wrapper (Source or Compare) -->
+        <div id="video-wrapper" class="video-container hidden">
+          <div class="video-header-overlay">
+            <span id="video-mode-indicator" class="video-mode-pill">Source Media</span>
+            <span id="canvas-ratio-pill" class="video-mode-pill font-mono">16:9 Canvas</span>
+          </div>
+          <video id="video-player" controls preload="metadata"></video>
+        </div>
+
+        <!-- Media Metadata Inspection Card (FFprobe verified) -->
+        <div id="media-metadata-card" class="metadata-card hidden">
+          <div class="meta-card-header">
+            <h4>Verified Media Stream</h4>
+            <span class="badge badge-success">FFprobe Verified</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Original SHA-256:</span>
+            <span id="meta-hash" class="meta-value font-mono">--</span>
+          </div>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">Duration:</span>
+              <span id="meta-duration" class="meta-value">--</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Resolution:</span>
+              <span id="meta-resolution" class="meta-value">--</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Frame Rate:</span>
+              <span id="meta-fps" class="meta-value">--</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Audio Stream:</span>
+              <span id="meta-audio" class="meta-value">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Canvas & Timeline Properties Card -->
+        <div id="active-properties-card" class="metadata-card hidden">
+          <div class="meta-card-header">
+            <h4>Active Processing Properties</h4>
+          </div>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">Canvas Ratio:</span>
+              <span id="prop-aspect" class="meta-value">16:9</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Color Grade:</span>
+              <span id="prop-color" class="meta-value">None</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Caption Mode:</span>
+              <span id="prop-captions" class="meta-value">Standard</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Audio Ducking:</span>
+              <span id="prop-ducking" class="meta-value">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Operation Revision History -->
+        <div class="history-container">
+          <div class="viz-header">
+            <h3>Revision History</h3>
+            <span id="history-count" class="tag tag-dim">0 edits</span>
+          </div>
+          <div id="history-list" class="history-list">
+            <div class="empty-state">No edits applied yet. Revision 0 is active.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center & Right Columns: Prompt Assistant & Multi-Track Studio -->
+      <section class="panel instruction-panel">
+        <div class="panel-header">
+          <h2>Natural-Language Editing Studio</h2>
+          <div class="header-tags-row">
+            <span id="timeline-revision-tag" class="tag tag-accent">Revision 0</span>
+            <span id="timeline-duration-badge" class="tag tag-dim font-mono">0.00s</span>
+          </div>
+        </div>
+
+        <!-- SCENE 4: PROMPT INPUT FORM -->
+        <div class="instruction-form">
+          <div class="input-wrapper">
+            <textarea id="instruction-input" rows="2" placeholder="e.g. Create a 30-second vertical reel, remove silence and long pauses, add subtitles, and add opening title 'Adventure'..." disabled></textarea>
+            <div class="prompt-action-buttons">
+              <button id="btn-generate-plan" class="btn btn-secondary" title="Interpret prompt and preview planned operations before applying" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                Preview Plan
+              </button>
+              <button id="btn-submit-instruction" class="btn btn-primary" title="Execute directly onto timeline" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Apply Edit
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Example Prompts -->
+          <div class="quick-chips">
+            <span class="chip-label">Example Prompts:</span>
+            <button class="chip" data-cmd="Remove silence and long pauses.">Cut Pauses</button>
+            <button class="chip" data-cmd="Create a 30-second vertical reel from the most relevant sections.">30s Vertical Reel</button>
+            <button class="chip" data-cmd="Generate English subtitles.">Generate Subtitles</button>
+            <button class="chip" data-cmd="Add clean subtitles with a white bold font and a black outline.">Clean Subtitles</button>
+            <button class="chip" data-cmd="Highlight each spoken word in yellow as it is spoken.">Yellow Karaoke</button>
+            <button class="chip" data-cmd="Give the video a cinematic colour grade.">Cinematic Grade</button>
+            <button class="chip" data-cmd="Add a smooth fade-in and fade-out.">Fade In/Out</button>
+            <button class="chip" data-cmd="Lower the music when someone speaks.">Audio Ducking</button>
+            <button class="chip" data-cmd="Make the ending 1.5x faster.">Speed Up Ending</button>
+            <button class="chip" data-cmd="mudhal 10 seconds cut pannu">Tamil Cut 10s</button>
+            <button class="chip" data-cmd="Undo the last change.">Undo Edit</button>
+          </div>
+        </div>
+
+        <!-- SCENE 5: AI UNDERSTANDING & EDIT PLANNING PANEL -->
+        <div id="ai-plan-card" class="plan-card hidden">
+          <div class="plan-header">
+            <div class="plan-title-block">
+              <span class="badge badge-accent">AI Edit Plan</span>
+              <h4>Proposed Operations Overview</h4>
+            </div>
+            <div class="plan-meta-pills">
+              <span id="plan-target-dur" class="tag tag-dim font-mono">Target: 30.0s</span>
+              <span id="plan-aspect-pill" class="tag tag-dim font-mono">Aspect: 9:16</span>
+              <button id="btn-dismiss-plan" class="close-btn">&times;</button>
+            </div>
+          </div>
+          <p id="plan-prompt-summary" class="plan-prompt-quote font-mono"></p>
+          <p id="plan-provider-notice" class="plan-provider-notice hidden" role="status"></p>
+
+          <div id="plan-operations-list" class="plan-operations-list">
+            <!-- Dynamically populated operation items -->
+          </div>
+
+          <div class="plan-footer">
+            <div class="plan-notice">
+              <span>Review planned changes before rendering. Timeline will update non-destructively.</span>
+            </div>
+            <div class="plan-actions">
+              <button id="btn-cancel-plan" class="btn btn-secondary btn-sm">Discard</button>
+              <button id="btn-approve-plan" class="btn btn-primary btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Approve & Execute Plan
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instruction Outcome Card (Applied / Clarification / Rejected) -->
+        <div id="outcome-card" class="outcome-card hidden">
+          <div class="outcome-header">
+            <span id="outcome-badge" class="badge">Status</span>
+            <span id="outcome-hash" class="meta-hash font-mono"></span>
+          </div>
+          <p id="outcome-message" class="outcome-message"></p>
+
+          <!-- Clarification Choice Container -->
+          <div id="clarification-container" class="clarification-box hidden">
+            <h4 id="clarification-question"></h4>
+            <div id="clarification-options" class="options-list"></div>
+          </div>
+
+          <!-- Before / After Summary -->
+          <div id="outcome-summary" class="summary-grid hidden">
+            <div class="summary-box">
+              <span class="sub-label">Before</span>
+              <span id="summary-before-dur">--</span>
+            </div>
+            <div class="summary-arrow">&rarr;</div>
+            <div class="summary-box">
+              <span class="sub-label">After</span>
+              <span id="summary-after-dur">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCENE 6: MULTI-TRACK INTERACTIVE TIMELINE -->
+        <div class="timeline-visualizer-container">
+          <div class="viz-header">
+            <div class="timeline-title-row">
+              <h3>Multi-Track Video Timeline</h3>
+              <span class="timeline-hint">Synchronized source of truth for rendering engine</span>
+            </div>
+            <div class="timeline-timing-stats">
+              <span class="stat-item"><label>Total Duration:</label> <strong id="timeline-duration" class="font-mono">0.00s</strong></span>
+              <span class="stat-item"><label>Clips:</label> <strong id="timeline-clip-count">0</strong></span>
+            </div>
+          </div>
+
+          <!-- Timeline multi-track board -->
+          <div class="multitrack-board">
+            <!-- Track 1: Video Track -->
+            <div class="track-row">
+              <div class="track-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                <span>Video</span>
+              </div>
+              <div id="track-video" class="track-lane">
+                <div class="empty-lane">Upload footage to build video track</div>
+              </div>
+            </div>
+
+            <!-- Track 2: Audio Track -->
+            <div class="track-row">
+              <div class="track-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                <span>Audio</span>
+              </div>
+              <div id="track-audio" class="track-lane">
+                <div class="empty-lane">Audio track synchronized with cuts</div>
+              </div>
+            </div>
+
+            <!-- Track 3: Subtitles / Captions Track -->
+            <div class="track-row">
+              <div class="track-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="16" x2="14" y2="16"/></svg>
+                <span>Captions</span>
+              </div>
+              <div id="track-captions" class="track-lane">
+                <div class="empty-lane">Generate or import subtitles</div>
+              </div>
+            </div>
+
+            <!-- Track 4: Titles & Overlays Track -->
+            <div class="track-row">
+              <div class="track-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                <span>Titles</span>
+              </div>
+              <div id="track-titles" class="track-lane">
+                <div class="empty-lane">Opening & closing title cards</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Studio Tools & Settings -->
+      <section class="panel right-studio-panel">
+        <div class="panel-tabs">
+          <button class="tab-btn active" data-tab="tab-transcript">Transcript</button>
+          <button class="tab-btn" data-tab="tab-captions">Captions</button>
+          <button class="tab-btn" data-tab="tab-titles-audio">Titles & Audio</button>
+          <button class="tab-btn" data-tab="tab-effects">Effects</button>
+          <button class="tab-btn" data-tab="tab-suggestions">
+            Suggestions <span id="suggestion-badge" class="badge-mini">0</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: TRANSCRIPT STUDIO -->
+        <div id="tab-transcript" class="tab-content active">
+          <div class="transcript-search-row">
+            <input type="text" id="transcript-search-input" placeholder="Search spoken words...">
+            <button id="btn-search-transcript" class="btn btn-secondary btn-sm">Search</button>
+            <button id="btn-filter-flagged" class="btn btn-secondary btn-sm" title="Show flagged low-confidence words">
+              Flagged (<span id="flagged-count">0</span>)
+            </button>
+          </div>
+
+          <div class="transcript-meta">
+            <span id="transcript-count" class="tag tag-dim">0 words</span>
+            <div class="transcript-actions">
+              <select id="export-format-select" class="select-sm">
+                <option value="srt">SRT</option>
+                <option value="vtt">VTT</option>
+                <option value="txt">TXT</option>
+                <option value="json">JSON</option>
+              </select>
+              <button id="btn-export-transcript" class="btn btn-secondary btn-sm" disabled title="Export subtitles">Export</button>
+            </div>
+          </div>
+
+          <div class="transcript-toolbar">
+            <label class="btn btn-secondary btn-sm" title="Import SRT, VTT, or JSON subtitles">
+              Import Subtitles
+              <input type="file" id="transcript-file-input" accept=".srt,.vtt,.json" hidden>
+            </label>
+            <label class="btn btn-secondary btn-sm" title="Upload voice-over document (.pdf, .docx, .txt)">
+              Voice-Over Doc
+              <input type="file" id="voiceover-file-input" accept=".pdf,.docx,.doc,.txt,.md" hidden>
+            </label>
+            <button id="btn-load-sample-transcript" class="btn btn-secondary btn-sm" disabled>Sample</button>
+            <button id="btn-generate-transcript" class="btn btn-primary btn-sm" disabled>Auto-Transcribe</button>
+          </div>
+
+          <!-- Words Display Container -->
+          <div id="transcript-words-container" class="transcript-content">
+            <div class="empty-state">Upload media or load transcript to view spoken words.</div>
+          </div>
+
+          <!-- Inline Word Editor Card -->
+          <div id="word-editor-card" class="word-editor-card hidden">
+            <div class="editor-header">
+              <h4>Edit Spoken Word</h4>
+              <button id="btn-close-word-editor" class="close-btn">&times;</button>
+            </div>
+            <div class="editor-body">
+              <div class="editor-field">
+                <label>Text:</label>
+                <input type="text" id="edit-word-text">
+              </div>
+              <div class="editor-row">
+                <div class="editor-field">
+                  <label>Start (s):</label>
+                  <input type="number" step="0.01" id="edit-word-start">
+                </div>
+                <div class="editor-field">
+                  <label>End (s):</label>
+                  <input type="number" step="0.01" id="edit-word-end">
+                </div>
+              </div>
+              <div class="editor-field">
+                <label>Speaker:</label>
+                <input type="text" id="edit-word-speaker" placeholder="Speaker A">
+              </div>
+              <div class="editor-actions">
+                <button id="btn-save-word" class="btn btn-primary btn-sm">Save Word</button>
+                <button id="btn-delete-word" class="btn btn-danger btn-sm">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: CAPTIONS STUDIO -->
+        <div id="tab-captions" class="tab-content">
+          <div class="studio-section">
+            <h3>Caption Style Presets</h3>
+            <div class="preset-buttons">
+              <button class="btn btn-secondary btn-sm preset-btn" data-preset="clean_white">Clean White</button>
+              <button class="btn btn-secondary btn-sm preset-btn" data-preset="yellow_karaoke">Yellow Karaoke</button>
+              <button class="btn btn-secondary btn-sm preset-btn" data-preset="cinematic">Cinematic</button>
+              <button class="btn btn-secondary btn-sm preset-btn" data-preset="boxed">Boxed Highlight</button>
+              <button class="btn btn-secondary btn-sm preset-btn" data-preset="bold_edu">Bold Educational</button>
+            </div>
+          </div>
+
+          <div class="studio-section">
+            <h3>Caption Display Mode</h3>
+            <div class="mode-toggles">
+              <label class="radio-label">
+                <input type="radio" name="caption_mode" value="standard" checked>
+                <span>Standard Sentence</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="caption_mode" value="word_by_word">
+                <span>Word-by-Word Reveal</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="caption_mode" value="karaoke">
+                <span>Karaoke Active Highlight</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="studio-section">
+            <h3>Typography & Colors</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Font Family:</label>
+                <select id="caption-font-family" class="select-sm">
+                  <option value="Nirmala UI">Nirmala UI (Tamil & English)</option>
+                  <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                  <option value="Inter">Inter</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="Arial">Arial</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="Impact">Impact</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Font Size (<span id="font-size-val">24</span>px):</label>
+                <input type="range" id="caption-font-size" min="16" max="56" value="24">
+              </div>
+              <div class="form-group">
+                <label>Text Color:</label>
+                <input type="color" id="caption-text-color" value="#FFFFFF">
+              </div>
+              <div class="form-group">
+                <label>Outline Color:</label>
+                <input type="color" id="caption-outline-color" value="#000000">
+              </div>
+              <div class="form-group">
+                <label>Outline Width (<span id="outline-width-val">2</span>px):</label>
+                <input type="range" id="caption-outline-width" min="0" max="6" value="2">
+              </div>
+              <div class="form-group">
+                <label>Shadow Offset (<span id="shadow-val">1</span>px):</label>
+                <input type="range" id="caption-shadow" min="0" max="5" value="1">
+              </div>
+              <div class="form-group">
+                <label>Background Box:</label>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <input type="checkbox" id="caption-bg-box">
+                  <input type="color" id="caption-bg-color" value="#000000">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Vertical Position:</label>
+                <select id="caption-vertical-pos" class="select-sm">
+                  <option value="bottom">Bottom (Default)</option>
+                  <option value="center">Middle</option>
+                  <option value="top">Top</option>
+                </select>
+              </div>
+            </div>
+            <button id="btn-apply-caption-style" class="btn btn-primary btn-sm" style="margin-top:10px; width:100%;">
+              Apply Caption Styling
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 3: TITLES & AUDIO STUDIO (SCENE 8) -->
+        <div id="tab-titles-audio" class="tab-content">
+          <div class="studio-section">
+            <h3>Title Cards</h3>
+            <div class="form-group">
+              <label>Opening Title Text:</label>
+              <input type="text" id="opening-title-text" placeholder="e.g. Weekend Adventure">
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Display Duration:</label>
+                <select id="opening-title-dur" class="select-sm">
+                  <option value="2.5">2.5 seconds</option>
+                  <option value="3.5" selected>3.5 seconds</option>
+                  <option value="5.0">5.0 seconds</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Placement:</label>
+                <select id="opening-title-pos" class="select-sm">
+                  <option value="center" selected>Center Card</option>
+                  <option value="top">Top Header</option>
+                  <option value="bottom">Bottom Third</option>
+                </select>
+              </div>
+            </div>
+            <button id="btn-add-opening-title" class="btn btn-secondary btn-sm" style="width:100%;">
+              Add Opening Title Card
+            </button>
+
+            <div class="divider-sm"></div>
+
+            <div class="form-group">
+              <label>Closing Title Card:</label>
+              <input type="text" id="closing-title-text" placeholder="e.g. Thanks for Watching">
+            </div>
+            <button id="btn-add-closing-title" class="btn btn-secondary btn-sm" style="width:100%;">
+              Add Closing Title Card
+            </button>
+          </div>
+
+          <div class="studio-section">
+            <h3>Background Music & Mixing</h3>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="bgm-toggle">
+                <span>Enable Ambient Background Music</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>Music Volume (<span id="bgm-volume-val">20</span>%):</label>
+              <input type="range" id="bgm-volume-slider" min="0" max="100" value="20">
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="bgm-ducking-toggle" checked>
+                <span>Speech Audio Ducking (Auto-lower during speech)</span>
+              </label>
+            </div>
+            <button id="btn-apply-bgm" class="btn btn-primary btn-sm" style="width:100%;">
+              Save Audio Mixing Settings
+            </button>
+          </div>
+
+          <div class="studio-section">
+            <h3>Audio Tools</h3>
+            <div class="audio-tool-list">
+              <button class="btn btn-secondary btn-sm" id="btn-audio-ducking">Enable Audio Ducking</button>
+              <button class="btn btn-secondary btn-sm" id="btn-audio-normalize">Normalize Loudness (EBU R128)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: EFFECTS & CANVAS FORMAT -->
+        <div id="tab-effects" class="tab-content">
+          <div class="studio-section">
+            <h3>Canvas Aspect Ratio</h3>
+            <div class="aspect-buttons">
+              <button class="btn btn-secondary btn-sm aspect-btn active" data-aspect="16:9">16:9 Landscape</button>
+              <button class="btn btn-secondary btn-sm aspect-btn" data-aspect="9:16">9:16 Vertical Reel</button>
+              <button class="btn btn-secondary btn-sm aspect-btn" data-aspect="1:1">1:1 Square</button>
+              <button class="btn btn-secondary btn-sm aspect-btn" data-aspect="4:5">4:5 Portrait</button>
+            </div>
+          </div>
+
+          <div class="studio-section">
+            <h3>Color Grading Presets</h3>
+            <div class="color-presets-grid">
+              <button class="btn btn-secondary btn-sm color-btn" data-color="cinematic">Cinematic (Teal/Orange)</button>
+              <button class="btn btn-secondary btn-sm color-btn" data-color="warm">Warm Golden</button>
+              <button class="btn btn-secondary btn-sm color-btn" data-color="cool">Cool Blue</button>
+              <button class="btn btn-secondary btn-sm color-btn" data-color="sepia">Sepia Vintage</button>
+              <button class="btn btn-secondary btn-sm color-btn" data-color="grayscale">B&W Grayscale</button>
+              <button class="btn btn-secondary btn-sm color-btn" data-color="none">Reset Color</button>
+            </div>
+          </div>
+
+          <div class="studio-section">
+            <h3>Transitions</h3>
+            <div class="effect-action-list">
+              <button class="btn btn-secondary btn-sm" id="btn-fade-transition">Add Smooth Fade In/Out</button>
+              <button class="btn btn-secondary btn-sm" id="btn-crossfade-transition">Crossfade Between Clips</button>
+              <button class="btn btn-secondary btn-sm" id="btn-dissolve-transition">Dissolve Between Clips</button>
+              <button class="btn btn-secondary btn-sm" id="btn-blur-region">Apply Blur</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 5: SMART SUGGESTIONS -->
+        <div id="tab-suggestions" class="tab-content">
+          <div class="suggestions-header">
+            <h3>AI & Heuristic Recommendations</h3>
+            <button id="btn-refresh-suggestions" class="btn btn-secondary btn-sm">Refresh</button>
+          </div>
+
+          <div class="topic-search-row">
+            <input type="text" id="topic-search-input" placeholder="Search topic (e.g. pricing, intro)...">
+            <button id="btn-search-topic" class="btn btn-secondary btn-sm">Find</button>
+          </div>
+
+          <div id="suggestions-container" class="suggestions-list">
+            <div class="empty-state">Load a media file to scan for smart editing suggestions.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- SCENE 10: RENDER ENGINE PROGRESS MODAL -->
+  <div id="render-modal" class="modal-overlay hidden">
+    <div class="modal-card modal-card-render">
+      <div class="modal-header">
+        <div class="render-header-title">
+          <div class="spinner-mini"></div>
+          <h3>Rendering Verified Video</h3>
+        </div>
+        <span id="render-stage-badge" class="badge">Stage 1 of 6</span>
+      </div>
+      <div class="modal-body">
+        <p id="render-stage-desc" class="render-stage-text">Preparing timeline, filter graph, and media assets...</p>
+        
+        <div class="progress-bar">
+          <div id="render-modal-progress-fill" class="progress-fill" style="width: 15%"></div>
+        </div>
+
+        <!-- Honest Stage Stepper -->
+        <div class="render-stepper">
+          <div class="step-item active" id="step-prepare">
+            <span class="step-num">1</span>
+            <span class="step-label">Prepare Timeline</span>
+          </div>
+          <div class="step-item" id="step-clips">
+            <span class="step-num">2</span>
+            <span class="step-label">Process Clips & Speeds</span>
+          </div>
+          <div class="step-item" id="step-captions">
+            <span class="step-num">3</span>
+            <span class="step-label">Burn Subtitles</span>
+          </div>
+          <div class="step-item" id="step-audio">
+            <span class="step-num">4</span>
+            <span class="step-label">Mix Audio & BGM</span>
+          </div>
+          <div class="step-item" id="step-encode">
+            <span class="step-num">5</span>
+            <span class="step-label">Encode H.264/AAC</span>
+          </div>
+          <div class="step-item" id="step-validate">
+            <span class="step-num">6</span>
+            <span class="step-label">FFprobe Validation</span>
+          </div>
+        </div>
+
+        <div class="render-terminal-output">
+          <pre id="render-log-text" class="font-mono">Initializing FFmpeg 9.0 deterministic rendering pipeline...</pre>
+        </div>
+        <div class="modal-actions">
+          <button id="btn-cancel-render" class="btn btn-secondary">Cancel render</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 11: EXPORT SUCCESS SCREEN / MODAL -->
+  <div id="export-success-modal" class="modal-overlay hidden">
+    <div class="modal-card modal-card-success">
+      <div class="modal-header">
+        <div class="success-header-badge">
+          <span class="badge-check">✓</span>
+          <h3>Export Verified & Complete</h3>
+        </div>
+        <button id="btn-close-export-modal" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="final-video-box">
+          <video id="final-rendered-player" controls preload="metadata"></video>
+        </div>
+
+        <div class="export-meta-card">
+          <h4>Verified Media Information</h4>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">File Name:</span>
+              <span id="export-filename" class="meta-value font-mono">--</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Duration:</span>
+              <span id="export-duration" class="meta-value font-mono">--</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Resolution:</span>
+              <span id="export-resolution" class="meta-value font-mono">--</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">File Size:</span>
+              <span id="export-size" class="meta-value font-mono">--</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Video Codec:</span>
+              <span id="export-vcodec" class="meta-value font-mono">H.264 (yuv420p)</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Audio Stream:</span>
+              <span id="export-acodec" class="meta-value font-mono">AAC (48kHz)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="export-actions-row">
+          <a id="btn-download-mp4" class="btn btn-success btn-lg" download>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Verified MP4
+          </a>
+          <button id="btn-view-manifest-modal" class="btn btn-secondary">View Manifest</button>
+          <button id="btn-edit-again" class="btn btn-secondary">Back to Edit</button>
+          <button id="btn-new-project-from-export" class="btn btn-secondary">Start New Project</button>
+        </div>
+
+        <div id="manifest-viewer-box" class="manifest-box hidden">
+          <pre id="manifest-viewer-json" class="font-mono"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 12: ERROR HANDLING & RECOVERY MODAL -->
+  <div id="error-modal" class="modal-overlay hidden">
+    <div class="modal-card modal-card-error">
+      <div class="modal-header">
+        <div class="error-header-title">
+          <span class="error-icon-pill">⚠️</span>
+          <h3 id="error-modal-title">Processing Notice</h3>
+        </div>
+        <button id="btn-close-error-modal" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="error-modal-desc" class="error-desc-text"></p>
+        <div class="safety-reassurance-card">
+          <span class="safety-icon">🛡️</span>
+          <div>
+            <strong>Original Media Protected</strong>
+            <p>After a successful upload, editing works from a protected source copy and revision history can restore prior edits. If upload validation fails, upload did not complete; fix the reported issue and retry.</p>
+          </div>
+        </div>
+        <div class="error-actions">
+          <button id="btn-error-action" class="btn btn-primary btn-sm">Acknowledge</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIP EDIT POPUP MODAL (SCENE 6) -->
+  <div id="clip-edit-modal" class="modal-overlay hidden">
+    <div class="modal-card modal-card-sm">
+      <div class="modal-header">
+        <h4>Edit Clip Boundaries</h4>
+        <button id="btn-close-clip-modal" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="clip-modal-hint" id="clip-modal-id-text">Segment: seg_0001</p>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Source Start (s):</label>
+            <input type="number" step="0.1" id="clip-edit-start">
+          </div>
+          <div class="form-group">
+            <label>Source End (s):</label>
+            <input type="number" step="0.1" id="clip-edit-end">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Playback Speed:</label>
+          <select id="clip-edit-speed" class="select-sm">
+            <option value="0.5">0.5x (Slow)</option>
+            <option value="1.0" selected>1.0x (Normal)</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x (Faster)</option>
+            <option value="2.0">2.0x (Double)</option>
+          </select>
+        </div>
+        <div class="editor-actions">
+          <button id="btn-save-clip" class="btn btn-primary btn-sm">Update Timeline Clip</button>
+          <button id="btn-delete-clip" class="btn btn-danger btn-sm">Remove Clip</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

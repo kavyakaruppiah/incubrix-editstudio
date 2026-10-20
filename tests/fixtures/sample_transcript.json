@@ -1,0 +1,172 @@
+{
+  "words": [
+    {
+      "id": "w_0001",
+      "text": "Hello",
+      "start": 0.1,
+      "end": 0.4,
+      "speaker": "Speaker A",
+      "confidence": 0.98
+    },
+    {
+      "id": "w_0002",
+      "text": "and",
+      "start": 0.4,
+      "end": 0.5,
+      "speaker": "Speaker A",
+      "confidence": 0.95
+    },
+    {
+      "id": "w_0003",
+      "text": "welcome",
+      "start": 0.5,
+      "end": 0.9,
+      "speaker": "Speaker A",
+      "confidence": 0.99
+    },
+    {
+      "id": "w_0004",
+      "text": "to",
+      "start": 0.9,
+      "end": 1.1,
+      "speaker": "Speaker A",
+      "confidence": 0.97
+    },
+    {
+      "id": "w_0005",
+      "text": "the",
+      "start": 1.1,
+      "end": 1.3,
+      "speaker": "Speaker A",
+      "confidence": 0.96
+    },
+    {
+      "id": "w_0006",
+      "text": "show",
+      "start": 1.3,
+      "end": 1.7,
+      "speaker": "Speaker A",
+      "confidence": 0.99
+    },
+    {
+      "id": "w_0007",
+      "text": "um",
+      "start": 2.0,
+      "end": 2.4,
+      "speaker": "Speaker A",
+      "confidence": 0.9
+    },
+    {
+      "id": "w_0008",
+      "text": "today",
+      "start": 2.5,
+      "end": 2.9,
+      "speaker": "Speaker A",
+      "confidence": 0.95
+    },
+    {
+      "id": "w_0009",
+      "text": "we",
+      "start": 2.9,
+      "end": 3.1,
+      "speaker": "Speaker A",
+      "confidence": 0.94
+    },
+    {
+      "id": "w_0010",
+      "text": "discuss",
+      "start": 3.1,
+      "end": 3.5,
+      "speaker": "Speaker A",
+      "confidence": 0.98
+    },
+    {
+      "id": "w_0011",
+      "text": "uh",
+      "start": 5.2,
+      "end": 5.5,
+      "speaker": "Speaker B",
+      "confidence": 0.88
+    },
+    {
+      "id": "w_0012",
+      "text": "important",
+      "start": 5.6,
+      "end": 6.2,
+      "speaker": "Speaker B",
+      "confidence": 0.97
+    },
+    {
+      "id": "w_0013",
+      "text": "updates",
+      "start": 6.2,
+      "end": 6.8,
+      "speaker": "Speaker B",
+      "confidence": 0.98
+    },
+    {
+      "id": "w_0014",
+      "text": "like",
+      "start": 7.0,
+      "end": 7.3,
+      "speaker": "Speaker B",
+      "confidence": 0.91
+    },
+    {
+      "id": "w_0015",
+      "text": "video",
+      "start": 7.4,
+      "end": 7.8,
+      "speaker": "Speaker B",
+      "confidence": 0.96
+    },
+    {
+      "id": "w_0016",
+      "text": "welcome",
+      "start": 8.0,
+      "end": 8.4,
+      "speaker": "Speaker B",
+      "confidence": 0.99
+    },
+    {
+      "id": "w_0017",
+      "text": "to",
+      "start": 8.4,
+      "end": 8.6,
+      "speaker": "Speaker B",
+      "confidence": 0.97
+    },
+    {
+      "id": "w_0018",
+      "text": "our",
+      "start": 8.6,
+      "end": 8.9,
+      "speaker": "Speaker B",
+      "confidence": 0.95
+    },
+    {
+      "id": "w_0019",
+      "text": "community",
+      "start": 8.9,
+      "end": 9.5,
+      "speaker": "Speaker B",
+      "confidence": 0.99
+    },
+    {
+      "id": "w_0020",
+      "text": "confidential",
+      "start": 9.8,
+      "end": 10.5,
+      "speaker": "Speaker B",
+      "confidence": 0.96
+    },
+    {
+      "id": "w_0021",
+      "text": "goodbye",
+      "start": 10.7,
+      "end": 11.2,
+      "speaker": "Speaker B",
+      "confidence": 0.99
+    }
+  ]
+}

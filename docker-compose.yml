@@ -1,0 +1,27 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prompt_video_editor_app
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - APP_ENV=production
+      - STORAGE_BACKEND=local
+      - LOCAL_STORAGE_DIR=/app/data/storage
+      - DATABASE_URL=sqlite:////app/data/app.db
+      - AUDIO_SNAPPING_ENABLED=true
+    volumes:
+      - editor_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  editor_data:
+    driver: local

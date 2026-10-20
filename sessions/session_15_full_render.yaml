@@ -1,0 +1,11 @@
+video_path: tests/fixtures/sample_with_audio.mp4
+transcript_path: tests/fixtures/sample_transcript.json
+instructions:
+  - "cut from 00:03 to 00:06"
+  - "caption 'Welcome!' at 'goodbye'"
+render: true
+assertions:
+  expected_last_status: applied
+  # Word-safe audio snapping expands the requested 3s-6s cut to nearby
+  # transcript boundaries (2.9s-6.2s) so no spoken word is clipped.
+  expected_duration: 8.7

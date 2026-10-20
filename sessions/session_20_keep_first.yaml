@@ -1,0 +1,7 @@
+video_path: tests/fixtures/sample_with_audio.mp4
+transcript_path: tests/fixtures/sample_transcript.json
+instructions:
+- keep first 5 seconds
+render: false
+assertions:
+  expected_last_status: applied

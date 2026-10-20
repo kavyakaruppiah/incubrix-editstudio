@@ -1,0 +1,9 @@
+video_path: tests/fixtures/sample_with_audio.mp4
+transcript_path: tests/fixtures/sample_transcript.json
+instructions:
+  - "speed up from 00:00 to 00:06 by 2.0x"
+render: false
+assertions:
+  expected_last_status: applied
+  # 6s sped up by 2x becomes 3s. Remaining 6s stays 6s. Total output duration = 9.0s
+  expected_duration: 9.0

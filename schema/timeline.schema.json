@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schema/timeline.schema.json",
+  "title": "DeterministicVideoTimeline",
+  "description": "Deterministic, reversible timeline data model for prompt-based video editing",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "media_id",
+    "original_media_hash",
+    "source_metadata",
+    "transcript",
+    "segments",
+    "captions",
+    "text_overlays",
+    "audio_effects",
+    "revision",
+    "history",
+    "time_policy"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "media_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "original_media_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "source_metadata": {
+      "type": "object",
+      "required": ["duration", "width", "height", "video_codec", "audio_present"],
+      "properties": {
+        "duration": { "type": "number", "minimum": 0 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "frame_rate": { "type": "number", "minimum": 0 },
+        "video_codec": { "type": "string" },
+        "audio_present": { "type": "boolean" },
+        "sample_rate": { "type": ["integer", "null"] },
+        "channels": { "type": ["integer", "null"] },
+        "is_vfr": { "type": "boolean" },
+        "file_size": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "transcript": {
+      "type": "object",
+      "required": ["words"],
+      "properties": {
+        "words": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "text", "normalized_text", "start", "end"],
+            "properties": {
+              "id": { "type": "string" },
+              "text": { "type": "string" },
+              "normalized_text": { "type": "string" },
+              "start": { "type": "number", "minimum": 0 },
+              "end": { "type": "number", "minimum": 0 },
+              "speaker": { "type": ["string", "null"] },
+              "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+              "provenance": { "type": "string" },
+              "warnings": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["segment_id", "source_start", "source_end", "speed", "audio_enabled", "video_enabled"],
+        "properties": {
+          "segment_id": { "type": "string" },
+          "source_start": { "type": "number", "minimum": 0 },
+          "source_end": { "type": "number", "minimum": 0 },
+          "speed": { "type": "number", "exclusiveMinimum": 0 },
+          "audio_enabled": { "type": "boolean" },
+          "video_enabled": { "type": "boolean" },
+          "label": { "type": ["string", "null"] },
+          "transition_in": { "type": "string", "enum": ["cut", "crossfade", "dissolve", "wipe"] },
+          "transition_duration": { "type": "number", "minimum": 0, "maximum": 2 }
+        }
+      }
+    },
+    "captions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["caption_id", "text", "anchor_word_ids"],
+        "properties": {
+          "caption_id": { "type": "string" },
+          "text": { "type": "string" },
+          "anchor_word_ids": { "type": "array", "items": { "type": "string" } },
+          "anchor_phrase": { "type": ["string", "null"] },
+          "style": {
+            "type": "object",
+            "properties": {
+              "font_name": { "type": "string" },
+              "font_size": { "type": "integer" },
+              "primary_color": { "type": "string" },
+              "outline_color": { "type": "string" },
+              "outline_width": { "type": "integer" },
+              "position": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "text_overlays": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["overlay_id", "text", "position"],
+        "properties": {
+          "overlay_id": { "type": "string" },
+          "text": { "type": "string" },
+          "anchor_word_ids": { "type": ["array", "null"], "items": { "type": "string" } },
+          "source_start": { "type": ["number", "null"] },
+          "source_end": { "type": ["number", "null"] },
+          "output_start": { "type": ["number", "null"] },
+          "output_end": { "type": ["number", "null"] },
+          "position": { "type": "string" },
+          "style": { "type": "object" }
+        }
+      }
+    },
+    "audio_effects": {
+      "type": "object",
+      "required": ["mutes", "bleeps"],
+      "properties": {
+        "mutes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["mute_id", "source_start", "source_end"],
+            "properties": {
+              "mute_id": { "type": "string" },
+              "source_start": { "type": "number", "minimum": 0 },
+              "source_end": { "type": "number", "minimum": 0 },
+              "word_ids": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "bleeps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["bleep_id", "source_start", "source_end", "frequency_hz"],
+            "properties": {
+              "bleep_id": { "type": "string" },
+              "source_start": { "type": "number", "minimum": 0 },
+              "source_end": { "type": "number", "minimum": 0 },
+              "frequency_hz": { "type": "number", "minimum": 100, "maximum": 5000 },
+              "word_ids": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "background_music": {
+      "type": ["object", "null"],
+      "properties": {
+        "track_id": { "type": "string" },
+        "track_path": { "type": ["string", "null"] },
+        "volume": { "type": "number", "minimum": 0, "maximum": 2 },
+        "ducking_enabled": { "type": "boolean" },
+        "ducking_attenuation_db": { "type": "number" },
+        "speech_threshold": { "type": "number" }
+      }
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["operation_id", "operation_type", "parameters", "previous_revision", "resulting_revision", "status"],
+        "properties": {
+          "operation_id": { "type": "string" },
+          "operation_type": { "type": "string" },
+          "parameters": { "type": "object" },
+          "previous_revision": { "type": "integer" },
+          "resulting_revision": { "type": "integer" },
+          "status": { "type": "string" },
+          "provenance": { "type": "string" },
+          "created_at": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "time_policy": {
+      "type": "object",
+      "required": ["source_time_definition", "timeline_time_definition", "speed_derivation_rule"],
+      "properties": {
+        "source_time_definition": { "type": "string" },
+        "timeline_time_definition": { "type": "string" },
+        "speed_derivation_rule": { "type": "string" }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

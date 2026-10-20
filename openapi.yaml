@@ -1,0 +1,2519 @@
+openapi: 3.1.0
+info:
+  title: IncuBrix EditStudio
+  description: Professional AI-assisted video editing studio with reversible prompt-based
+    editing, captions, effects, timeline verification, and FFmpeg rendering.
+  version: 1.0.0
+paths:
+  /api/v1/health:
+    get:
+      summary: Get Health
+      operationId: get_health_api_v1_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /api/v1/ready:
+    get:
+      summary: Get Readiness
+      operationId: get_readiness_api_v1_ready_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+  /api/v1/media/upload:
+    post:
+      summary: Upload Media
+      operationId: upload_media_api_v1_media_upload_post
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_media_api_v1_media_upload_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaManifest'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/media/{media_id}:
+    get:
+      summary: Get Media Manifest
+      operationId: get_media_manifest_api_v1_media__media_id__get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaManifest'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/media/{media_id}/source:
+    get:
+      summary: Stream Source Media
+      description: Serve the immutable uploaded asset for browser playback and seeking.
+      operationId: stream_source_media_api_v1_media__media_id__source_get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/media/{media_id}/scenes:
+    get:
+      summary: Get Media Scenes
+      operationId: get_media_scenes_api_v1_media__media_id__scenes_get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: threshold
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 100.0
+          minimum: 1.0
+          description: PySceneDetect cut detection threshold
+          default: 27.0
+          title: Threshold
+        description: PySceneDetect cut detection threshold
+      - name: refresh
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Force fresh scene analysis and bypass cache
+          default: false
+          title: Refresh
+        description: Force fresh scene analysis and bypass cache
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/media/{media_id}/thumbnail:
+    get:
+      summary: Get Media Thumbnail
+      operationId: get_media_thumbnail_api_v1_media__media_id__thumbnail_get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: time
+        in: query
+        required: false
+        schema:
+          type: number
+          minimum: 0.0
+          description: Timestamp in seconds for poster frame
+          default: 1.0
+          title: Time
+        description: Timestamp in seconds for poster frame
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/{media_id}/upload:
+    post:
+      summary: Upload Transcript
+      operationId: upload_transcript_api_v1_transcript__media_id__upload_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_transcript_api_v1_transcript__media_id__upload_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Upload Transcript Api V1 Transcript  Media Id  Upload
+                  Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/{media_id}:
+    get:
+      summary: Get Transcript
+      operationId: get_transcript_api_v1_transcript__media_id__get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transcript'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/{media_id}/export:
+    get:
+      summary: Export Transcript
+      operationId: export_transcript_api_v1_transcript__media_id__export_get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+          pattern: ^(txt|json|srt|vtt)$
+          description: 'Export format: txt, json, srt, vtt'
+          default: txt
+          title: Format
+        description: 'Export format: txt, json, srt, vtt'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/{media_id}/edit_word:
+    post:
+      summary: Edit Transcript Word
+      operationId: edit_transcript_word_api_v1_transcript__media_id__edit_word_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditWordRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/{media_id}/word/{word_id}:
+    delete:
+      summary: Delete Transcript Word
+      operationId: delete_transcript_word_api_v1_transcript__media_id__word__word_id__delete
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: word_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Word Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/{media_id}/search:
+    get:
+      summary: Search Transcript
+      operationId: search_transcript_api_v1_transcript__media_id__search_get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          title: Q
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/{media_id}/flagged:
+    get:
+      summary: Get Flagged Transcript Words
+      operationId: get_flagged_transcript_words_api_v1_transcript__media_id__flagged_get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: threshold
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          default: 0.5
+          title: Threshold
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/{media_id}/audio_info:
+    get:
+      summary: Get Audio Info
+      operationId: get_audio_info_api_v1_transcript__media_id__audio_info_get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/{media_id}/load_sample:
+    post:
+      summary: Load Sample Transcript
+      operationId: load_sample_transcript_api_v1_transcript__media_id__load_sample_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/voiceover/{media_id}/upload:
+    post:
+      summary: Upload Voiceover Document
+      operationId: upload_voiceover_document_api_v1_voiceover__media_id__upload_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: auto_align
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Align voice-over script words with video audio timing
+          default: true
+          title: Auto Align
+        description: Align voice-over script words with video audio timing
+      - name: auto_captions
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Generate synchronized captions on timeline
+          default: true
+          title: Auto Captions
+        description: Generate synchronized captions on timeline
+      - name: synthesize_audio
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Synthesize spoken TTS audio track
+          default: false
+          title: Synthesize Audio
+        description: Synthesize spoken TTS audio track
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_voiceover_document_api_v1_voiceover__media_id__upload_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/{media_id}/generate:
+    post:
+      summary: Generate Transcript
+      operationId: generate_transcript_api_v1_transcript__media_id__generate_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: language
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Transcription language: auto, en, ta, or language code'
+          default: auto
+          title: Language
+        description: 'Transcription language: auto, en, ta, or language code'
+      - name: model_size
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Whisper model size: tiny, base, small, medium'
+          default: tiny
+          title: Model Size
+        description: 'Whisper model size: tiny, base, small, medium'
+      - name: vad_filter
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Enable Voice Activity Detection filtering
+          default: true
+          title: Vad Filter
+        description: Enable Voice Activity Detection filtering
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/transcript/status/{job_id}:
+    get:
+      summary: Get Transcript Job Status
+      operationId: get_transcript_job_status_api_v1_transcript_status__job_id__get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}:
+    get:
+      summary: Get Timeline
+      operationId: get_timeline_api_v1_timeline__media_id__get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/export/otio:
+    get:
+      summary: Export Timeline Otio
+      description: Export the current source-linked timeline as OpenTimelineIO JSON.
+      operationId: export_timeline_otio_api_v1_timeline__media_id__export_otio_get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/suggestions:
+    get:
+      summary: Get Timeline Suggestions
+      operationId: get_timeline_suggestions_api_v1_timeline__media_id__suggestions_get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: topic
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Topic
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/validate:
+    post:
+      summary: Validate Timeline Endpoint
+      operationId: validate_timeline_endpoint_api_v1_timeline__media_id__validate_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/reorder:
+    post:
+      summary: Reorder Timeline Segments
+      operationId: reorder_timeline_segments_api_v1_timeline__media_id__reorder_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderTimelineRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/split:
+    post:
+      summary: Split Timeline Clip
+      operationId: split_timeline_clip_api_v1_timeline__media_id__split_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SplitTimelineRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/duplicate:
+    post:
+      summary: Duplicate Timeline Clip
+      operationId: duplicate_timeline_clip_api_v1_timeline__media_id__duplicate_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DuplicateTimelineRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/instruction/{media_id}:
+    post:
+      summary: Submit Instruction
+      operationId: submit_instruction_api_v1_instruction__media_id__post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstructionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstructionResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/instruction/clarify:
+    post:
+      summary: Submit Clarification Choice
+      operationId: submit_clarification_choice_api_v1_instruction_clarify_post
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClarificationAnswerRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstructionResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/history:
+    get:
+      summary: Get Timeline History
+      operationId: get_timeline_history_api_v1_timeline__media_id__history_get
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/undo:
+    post:
+      summary: Undo Timeline Edit
+      operationId: undo_timeline_edit_api_v1_timeline__media_id__undo_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstructionResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/redo:
+    post:
+      summary: Redo Timeline Edit
+      operationId: redo_timeline_edit_api_v1_timeline__media_id__redo_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstructionResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/restore:
+    post:
+      summary: Restore Timeline Edit
+      operationId: restore_timeline_edit_api_v1_timeline__media_id__restore_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstructionResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/render/{media_id}:
+    post:
+      summary: Trigger Render
+      operationId: trigger_render_api_v1_render__media_id__post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/RenderOptions'
+              - type: 'null'
+              title: Payload
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenderJobResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/render/status/{job_id}:
+    get:
+      summary: Get Render Job Status
+      operationId: get_render_job_status_api_v1_render_status__job_id__get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/render/cancel/{job_id}:
+    post:
+      summary: Cancel Render Job
+      operationId: cancel_render_job_api_v1_render_cancel__job_id__post
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/render/manifest/{filename}:
+    get:
+      summary: Get Render Manifest
+      operationId: get_render_manifest_api_v1_render_manifest__filename__get
+      parameters:
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Filename
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenderManifest'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/render/download/{filename}:
+    get:
+      summary: Download Rendered Video
+      operationId: download_rendered_video_api_v1_render_download__filename__get
+      parameters:
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Filename
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/renders/{job_id}/download:
+    get:
+      summary: Download Render Job
+      description: Download the verified output for a completed render job.
+      operationId: download_render_job_api_v1_renders__job_id__download_get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/session/execute:
+    post:
+      summary: Run Session Endpoint
+      operationId: run_session_endpoint_api_v1_session_execute_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionRunRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+  /api/v1/projects:
+    get:
+      summary: List Projects Endpoint
+      operationId: list_projects_endpoint_api_v1_projects_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+    post:
+      summary: Create Project Endpoint
+      operationId: create_project_endpoint_api_v1_projects_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectPayload'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+  /api/v1/projects/{project_id}:
+    get:
+      summary: Get Project Endpoint
+      operationId: get_project_endpoint_api_v1_projects__project_id__get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      summary: Update Project Endpoint
+      operationId: update_project_endpoint_api_v1_projects__project_id__patch
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectPayload'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Project Endpoint
+      operationId: delete_project_endpoint_api_v1_projects__project_id__delete
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/duplicate:
+    post:
+      summary: Duplicate Project Endpoint
+      operationId: duplicate_project_endpoint_api_v1_projects__project_id__duplicate_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/demo/load:
+    post:
+      summary: Load Bundled Demo
+      operationId: load_bundled_demo_api_v1_demo_load_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+  /api/v1/plan/generate/{media_id}:
+    post:
+      summary: Generate Ai Edit Plan
+      operationId: generate_ai_edit_plan_api_v1_plan_generate__media_id__post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneratePlanPayload'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/plan/apply/{media_id}:
+    post:
+      summary: Apply Ai Edit Plan
+      operationId: apply_ai_edit_plan_api_v1_plan_apply__media_id__post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyPlanPayload'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/caption-style/{media_id}:
+    post:
+      summary: Update Caption Style
+      operationId: update_caption_style_api_v1_caption_style__media_id__post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaptionStylePayload'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/title:
+    post:
+      summary: Add Title Card
+      operationId: add_title_card_api_v1_timeline__media_id__title_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TitleCardPayload'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/timeline/{media_id}/bgm:
+    post:
+      summary: Configure Background Music
+      operationId: configure_background_music_api_v1_timeline__media_id__bgm_post
+      parameters:
+      - name: media_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Media Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        description: Unique key used to safely retry this write request.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BackgroundMusicPayload'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /:
+    get:
+      summary: Serve Index
+      operationId: serve_index__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    ApplyPlanPayload:
+      properties:
+        operations:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Operations
+      additionalProperties: true
+      type: object
+      title: ApplyPlanPayload
+    BackgroundMusicPayload:
+      properties:
+        enabled:
+          type: boolean
+          title: Enabled
+          default: true
+        volume:
+          type: number
+          title: Volume
+          default: 0.2
+        ducking:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Ducking
+        ducking_enabled:
+          type: boolean
+          title: Ducking Enabled
+          default: true
+      type: object
+      title: BackgroundMusicPayload
+    Body_upload_media_api_v1_media_upload_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_upload_media_api_v1_media_upload_post
+    Body_upload_transcript_api_v1_transcript__media_id__upload_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_upload_transcript_api_v1_transcript__media_id__upload_post
+    Body_upload_voiceover_document_api_v1_voiceover__media_id__upload_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_upload_voiceover_document_api_v1_voiceover__media_id__upload_post
+    CaptionStylePayload:
+      properties:
+        font_family:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Font Family
+          default: Arial
+        font_size:
+          type: integer
+          maximum: 120.0
+          minimum: 8.0
+          title: Font Size
+          default: 24
+        text_color:
+          type: string
+          title: Text Color
+          default: '#FFFFFF'
+        outline_color:
+          type: string
+          title: Outline Color
+          default: '#000000'
+        outline_width:
+          type: integer
+          maximum: 20.0
+          minimum: 0.0
+          title: Outline Width
+          default: 2
+        shadow_offset:
+          type: integer
+          maximum: 20.0
+          minimum: 0.0
+          title: Shadow Offset
+          default: 1
+        background_box:
+          type: boolean
+          title: Background Box
+          default: false
+        background_color:
+          type: string
+          title: Background Color
+          default: '#000000'
+        vertical_position:
+          type: string
+          title: Vertical Position
+          default: bottom
+      type: object
+      title: CaptionStylePayload
+    ClarificationAnswerRequest:
+      properties:
+        session_id:
+          type: string
+          title: Session Id
+          description: Clarification session ID
+        selected_option_id:
+          type: string
+          title: Selected Option Id
+          description: Selected option ID or index (e.g. opt_1)
+      type: object
+      required:
+      - session_id
+      - selected_option_id
+      title: ClarificationAnswerRequest
+    ClarificationOption:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Stable identifier for choice, e.g. opt_1
+        label:
+          type: string
+          title: Label
+          description: Human readable summary of this choice
+        detail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Detail
+          description: Detailed context, timestamp, speaker
+        target_data:
+          additionalProperties: true
+          type: object
+          title: Target Data
+          description: Pre-computed payload to execute if selected
+      type: object
+      required:
+      - id
+      - label
+      title: ClarificationOption
+    CommittedOperation:
+      properties:
+        operation_id:
+          type: string
+          title: Operation Id
+        operation_type:
+          $ref: '#/components/schemas/OperationType'
+        parameters:
+          additionalProperties: true
+          type: object
+          title: Parameters
+        previous_revision:
+          type: integer
+          title: Previous Revision
+        resulting_revision:
+          type: integer
+          title: Resulting Revision
+        status:
+          type: string
+          title: Status
+          default: committed
+        state:
+          type: string
+          pattern: ^(active|undone|disabled)$
+          title: State
+          default: active
+        provenance:
+          type: string
+          title: Provenance
+          default: engine
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+      - operation_id
+      - operation_type
+      - parameters
+      - previous_revision
+      - resulting_revision
+      title: CommittedOperation
+    CreateProjectPayload:
+      properties:
+        name:
+          type: string
+          title: Name
+          default: Untitled Project
+        media_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Media Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      title: CreateProjectPayload
+    DuplicateTimelineRequest:
+      properties:
+        segment_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Segment Id
+          description: ID of specific segment to duplicate
+        segment_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Segment Index
+          description: 'Index of segment to duplicate (default: last)'
+      type: object
+      title: DuplicateTimelineRequest
+    EditWordRequest:
+      properties:
+        word_id:
+          type: string
+          title: Word Id
+        new_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: New Text
+        new_start:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: New Start
+        new_end:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: New End
+        new_speaker:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: New Speaker
+      type: object
+      required:
+      - word_id
+      title: EditWordRequest
+    GeneratePlanPayload:
+      properties:
+        prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prompt
+        instruction:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instruction
+      type: object
+      title: GeneratePlanPayload
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HealthResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          default: ok
+        version:
+          type: string
+          title: Version
+          default: 1.0.0
+      type: object
+      title: HealthResponse
+    InstructionRequest:
+      properties:
+        instruction:
+          type: string
+          minLength: 1
+          title: Instruction
+          description: Natural language editing instruction
+      type: object
+      required:
+      - instruction
+      title: InstructionRequest
+    InstructionResult:
+      properties:
+        request_id:
+          type: string
+          title: Request Id
+        status:
+          $ref: '#/components/schemas/InstructionStatus'
+        message:
+          type: string
+          title: Message
+        operations:
+          items:
+            $ref: '#/components/schemas/CommittedOperation'
+          type: array
+          title: Operations
+        before_summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Before Summary
+        after_summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: After Summary
+        clarification_question:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Clarification Question
+        options:
+          items:
+            $ref: '#/components/schemas/ClarificationOption'
+          type: array
+          title: Options
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+        timeline_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timeline Hash
+        timeline_revision:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Timeline Revision
+        duration_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Duration S
+        time_policy:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Time Policy
+        operation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Operation Id
+        error_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Code
+      type: object
+      required:
+      - request_id
+      - status
+      - message
+      title: InstructionResult
+    InstructionStatus:
+      type: string
+      enum:
+      - applied
+      - needs_clarification
+      - rejected
+      title: InstructionStatus
+    JobStatus:
+      type: string
+      enum:
+      - queued
+      - running
+      - completed
+      - failed
+      - cancelled
+      title: JobStatus
+    MediaManifest:
+      properties:
+        media_id:
+          type: string
+          title: Media Id
+        original_filename:
+          type: string
+          title: Original Filename
+        storage_filename:
+          type: string
+          title: Storage Filename
+        storage_path:
+          type: string
+          title: Storage Path
+        file_size:
+          type: integer
+          title: File Size
+        sha256_hash:
+          type: string
+          title: Sha256 Hash
+        created_at:
+          type: string
+          title: Created At
+        metadata:
+          $ref: '#/components/schemas/MediaMetadata'
+      type: object
+      required:
+      - media_id
+      - original_filename
+      - storage_filename
+      - storage_path
+      - file_size
+      - sha256_hash
+      - metadata
+      title: MediaManifest
+    MediaMetadata:
+      properties:
+        duration:
+          type: number
+          minimum: 0.0
+          title: Duration
+          description: Duration in seconds
+        width:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Width
+          description: Video width in pixels
+        height:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Height
+          description: Video height in pixels
+        frame_rate:
+          type: number
+          minimum: 0.0
+          title: Frame Rate
+          description: Nominal or average frame rate
+          default: 30.0
+        video_codec:
+          type: string
+          title: Video Codec
+          description: Video stream codec name
+        audio_present:
+          type: boolean
+          title: Audio Present
+          description: Whether an audio stream is detected
+          default: false
+        sample_rate:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sample Rate
+          description: Audio sample rate in Hz
+        channels:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Channels
+          description: Number of audio channels
+        is_vfr:
+          type: boolean
+          title: Is Vfr
+          description: Whether media has variable frame rate
+          default: false
+        file_size:
+          type: integer
+          minimum: 0.0
+          title: File Size
+          description: File size in bytes
+      type: object
+      required:
+      - duration
+      - width
+      - height
+      - video_codec
+      - file_size
+      title: MediaMetadata
+    OperationType:
+      type: string
+      enum:
+      - cut_range
+      - cut_range
+      - keep_range
+      - remove_phrase
+      - reorder_sections
+      - speed_change
+      - mute
+      - mute
+      - bleep
+      - add_caption
+      - add_text_overlay
+      - generate_captions
+      - remove_filler_words
+      - remove_silence
+      - add_background_music
+      - color_grade
+      - set_caption_style
+      - set_caption_mode
+      - add_transition
+      - set_aspect_ratio
+      - create_reel
+      - blur_region
+      - apply_preset
+      - audio_normalize
+      - audio_ducking
+      - audio_denoise
+      - video_transform
+      - split_clip
+      - duplicate_clip
+      - undo
+      - redo
+      - restore_edit
+      - restore_edit
+      title: OperationType
+    ReadinessResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        ffmpeg_available:
+          type: boolean
+          title: Ffmpeg Available
+        ffprobe_available:
+          type: boolean
+          title: Ffprobe Available
+        storage_writable:
+          type: boolean
+          title: Storage Writable
+        details:
+          additionalProperties: true
+          type: object
+          title: Details
+      type: object
+      required:
+      - status
+      - ffmpeg_available
+      - ffprobe_available
+      - storage_writable
+      - details
+      title: ReadinessResponse
+    RenderJobResponse:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - job_id
+      - status
+      - message
+      title: RenderJobResponse
+    RenderManifest:
+      properties:
+        render_id:
+          type: string
+          title: Render Id
+        media_id:
+          type: string
+          title: Media Id
+        timeline_revision:
+          type: integer
+          title: Timeline Revision
+        timeline_hash:
+          type: string
+          title: Timeline Hash
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        created_at:
+          type: string
+          title: Created At
+        completed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed At
+        output_filename:
+          type: string
+          title: Output Filename
+        output_path:
+          type: string
+          title: Output Path
+        output_url:
+          type: string
+          title: Output Url
+        file_size_bytes:
+          type: integer
+          title: File Size Bytes
+          default: 0
+        ffmpeg_command:
+          items:
+            type: string
+          type: array
+          title: Ffmpeg Command
+        verification:
+          anyOf:
+          - $ref: '#/components/schemas/RenderVerification'
+          - type: 'null'
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+        extra_metadata:
+          additionalProperties: true
+          type: object
+          title: Extra Metadata
+      type: object
+      required:
+      - render_id
+      - media_id
+      - timeline_revision
+      - timeline_hash
+      - status
+      - output_filename
+      - output_path
+      - output_url
+      title: RenderManifest
+    RenderOptions:
+      properties:
+        quality:
+          type: integer
+          maximum: 30.0
+          minimum: 16.0
+          title: Quality
+          description: H.264 CRF quality; lower means higher quality
+          default: 20
+        preset:
+          type: string
+          enum:
+          - ultrafast
+          - superfast
+          - veryfast
+          - faster
+          - fast
+          - medium
+          - slow
+          title: Preset
+          default: veryfast
+        frame_rate:
+          type: integer
+          enum:
+          - 24
+          - 25
+          - 30
+          - 50
+          - 60
+          title: Frame Rate
+          default: 30
+      type: object
+      title: RenderOptions
+      description: Safe, per-render encoder settings; output path and codec remain
+        server controlled.
+    RenderVerification:
+      properties:
+        is_readable:
+          type: boolean
+          title: Is Readable
+          default: false
+        expected_duration_s:
+          type: number
+          title: Expected Duration S
+        actual_duration_s:
+          type: number
+          title: Actual Duration S
+        duration_difference_s:
+          type: number
+          title: Duration Difference S
+        duration_within_tolerance:
+          type: boolean
+          title: Duration Within Tolerance
+        video_stream_present:
+          type: boolean
+          title: Video Stream Present
+        audio_stream_present:
+          type: boolean
+          title: Audio Stream Present
+        audio_video_sync_skew_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Audio Video Sync Skew S
+        original_file_hash_verified:
+          type: boolean
+          title: Original File Hash Verified
+          default: true
+        original_media_hash:
+          type: string
+          title: Original Media Hash
+        rendered_file_hash:
+          type: string
+          title: Rendered File Hash
+        width:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Width
+        height:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Height
+        frame_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Frame Rate
+        video_codec:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Video Codec
+        audio_codec:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Audio Codec
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+      type: object
+      required:
+      - expected_duration_s
+      - actual_duration_s
+      - duration_difference_s
+      - duration_within_tolerance
+      - video_stream_present
+      - audio_stream_present
+      - original_media_hash
+      - rendered_file_hash
+      title: RenderVerification
+    ReorderTimelineRequest:
+      properties:
+        segment_ids:
+          items:
+            type: string
+          type: array
+          title: Segment Ids
+      type: object
+      required:
+      - segment_ids
+      title: ReorderTimelineRequest
+    RestoreRequest:
+      properties:
+        target_operation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Operation Id
+        target_revision:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Target Revision
+      type: object
+      title: RestoreRequest
+    SessionRunRequest:
+      properties:
+        session_data:
+          additionalProperties: true
+          type: object
+          title: Session Data
+      type: object
+      required:
+      - session_data
+      title: SessionRunRequest
+    SplitTimelineRequest:
+      properties:
+        split_time:
+          type: number
+          title: Split Time
+          description: Timeline output timestamp in seconds where clip should be sliced
+      type: object
+      required:
+      - split_time
+      title: SplitTimelineRequest
+    TitleCardPayload:
+      properties:
+        text:
+          type: string
+          title: Text
+        position:
+          type: string
+          title: Position
+          default: center
+        timing:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timing
+        duration_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Duration S
+        duration_seconds:
+          type: number
+          title: Duration Seconds
+          default: 3.5
+      type: object
+      required:
+      - text
+      title: TitleCardPayload
+    Transcript:
+      properties:
+        words:
+          items:
+            $ref: '#/components/schemas/TranscriptWord'
+          type: array
+          title: Words
+        language:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Language
+          description: Detected or specified language code, e.g. en, ta
+          default: en
+        language_probability:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Language Probability
+          description: Confidence of language detection
+      type: object
+      title: Transcript
+    TranscriptWord:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Stable persistent word identifier, e.g. w_0001
+        text:
+          type: string
+          title: Text
+          description: Original raw word text
+        normalized_text:
+          type: string
+          title: Normalized Text
+          description: Normalized text for deterministic matching
+          default: ''
+        start:
+          type: number
+          minimum: 0.0
+          title: Start
+          description: Source start time in seconds
+        end:
+          type: number
+          minimum: 0.0
+          title: End
+          description: Source end time in seconds
+        speaker:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Speaker
+          description: Speaker identifier or null
+        confidence:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Confidence
+          description: Confidence score 0.0 to 1.0
+        provenance:
+          type: string
+          title: Provenance
+          description: Source or adapter that generated the word
+          default: user_or_adapter
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+          description: Warnings associated with this word
+      type: object
+      required:
+      - id
+      - text
+      - start
+      - end
+      title: TranscriptWord
+    UpdateProjectPayload:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        media_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Media Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      type: object
+      title: UpdateProjectPayload
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
