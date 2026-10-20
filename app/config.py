@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     INSTRUCTION_PROVIDER: str = "auto"
     OLLAMA_BASE_URL: str = "http://127.0.0.1:11434"
     OLLAMA_MODEL: str = ""
+    OLLAMA_API_KEY: Optional[str] = None
     OLLAMA_FALLBACK_MODELS: str = ""
     OLLAMA_TIMEOUT_SECONDS: float = 20.0
     # Optional Cloud AI (Gemini)

@@ -60,6 +60,59 @@ def test_ollama_adapter_splits_typed_compound_plan_with_schema(monkeypatch):
     assert seen["timeout"] == 1
 
 
+def test_ollama_cloud_uses_key_and_chat_endpoint(monkeypatch):
+    adapter = OllamaInstructionAdapter(
+        "https://ollama.com", "qwen3-coder:480b-cloud", 1, api_key="test-secret"
+    )
+    seen = {}
+
+    def fake_urlopen(request, timeout):
+        seen["request"] = request
+        return FakeResponse({"message": {"content": json.dumps({
+            "actions": [{
+                "operation": "cut_range",
+                "parameters": {"start": 1, "end": 2},
+                "description": "Cut the first section",
+            }],
+            "unsupported": [],
+            "clarification": "",
+        })}})
+
+    monkeypatch.setattr(ollama_module, "urlopen", fake_urlopen)
+    plan = adapter.plan_prompt("Cut the first section", {})
+
+    request = seen["request"]
+    payload = json.loads(request.data.decode("utf-8"))
+    assert request.full_url == "https://ollama.com/api/chat"
+    assert request.get_header("Authorization") == "Bearer test-secret"
+    assert payload["model"] == "qwen3-coder:480b-cloud"
+    assert payload["messages"][0]["role"] == "user"
+    assert plan["actions"][0]["operation"] == "cut_range"
+
+
+def test_ollama_cloud_availability_requires_key():
+    adapter = OllamaInstructionAdapter("https://ollama.com", "cloud-model", 1, api_key="")
+
+    available, message = adapter.is_available()
+
+    assert available is False
+    assert "OLLAMA_API_KEY" in message
+
+
+def test_ollama_cloud_availability_does_not_query_local_model_tags(monkeypatch):
+    adapter = OllamaInstructionAdapter("https://ollama.com", "cloud-model", 1, api_key="test-secret")
+    monkeypatch.setattr(
+        ollama_module,
+        "urlopen",
+        lambda *args, **kwargs: pytest.fail("Cloud availability must not call the local tags endpoint"),
+    )
+
+    available, message = adapter.is_available()
+
+    assert available is True
+    assert "Ollama Cloud" in message
+
+
 def test_ollama_candidate_tool_filter_keeps_full_fallback_for_unknown_language():
     adapter = OllamaInstructionAdapter("http://127.0.0.1:11434", "test-model", 1)
     assert adapter._candidate_tool_names("Please turn this into something more compelling") is None

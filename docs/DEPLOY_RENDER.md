@@ -34,7 +34,7 @@ WHISPER_DEVICE=cpu
 INSTRUCTION_PROVIDER=auto
 ```
 
-Do not set `PORT` yourself; Render manages it. Do not set `OLLAMA_BASE_URL` to `127.0.0.1` unless Ollama is running inside the same container (it is not included in this Docker image). With no reachable AI provider, `auto` uses the app's supported rules-based fallback. For hosted Gemini planning, add `GEMINI_API_KEY` as a secret in Render's Environment page; requests then go to Google and may incur charges. Never commit that key to GitHub.
+Do not set `PORT` yourself; Render manages it. The container does not include a local Ollama server, so `OLLAMA_BASE_URL=http://127.0.0.1:11434` will not work in Render. To use Ollama Cloud, create an Ollama Cloud API key and add these environment variables in Render: `INSTRUCTION_PROVIDER=ollama`, `OLLAMA_BASE_URL=https://ollama.com`, `OLLAMA_MODEL` set to a cloud model available to your Ollama account, and `OLLAMA_API_KEY` set to the key as a secret. The app calls Ollama Cloud's authenticated `/api/chat` endpoint. Never commit the key to GitHub. Alternatively, use hosted Gemini by setting `INSTRUCTION_PROVIDER=gemini` and adding `GEMINI_API_KEY`; provider requests may incur charges.
 
 The Dockerfile installs FFmpeg and fonts. The Faster-Whisper package is installed by `requirements.txt`; its tiny model may need to download on first transcription. The Ollama model used on the development machine is not packaged into the Render container.
 

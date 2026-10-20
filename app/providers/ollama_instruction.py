@@ -20,20 +20,31 @@ class OllamaInstructionAdapter:
     TRANSIENT_RETRY_DELAYS_SECONDS = (0.25, 0.75)
     MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 
-    def __init__(self, base_url: str | None = None, model: str | None = None, timeout: float | None = None):
+    def __init__(
+        self,
+        base_url: str | None = None,
+        model: str | None = None,
+        timeout: float | None = None,
+        api_key: str | None = None,
+    ):
         self.base_url = (base_url or settings.OLLAMA_BASE_URL).rstrip("/")
         self.model = model if model is not None else settings.OLLAMA_MODEL
         self.timeout = timeout if timeout is not None else settings.OLLAMA_TIMEOUT_SECONDS
+        self.api_key = (api_key if api_key is not None else settings.OLLAMA_API_KEY or "").strip()
         parsed = urlparse(self.base_url)
         if parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.username or parsed.password:
             raise OllamaProviderError("OLLAMA_BASE_URL must be an HTTP(S) URL without embedded credentials.")
+        self.is_cloud = parsed.hostname.lower() == "ollama.com"
         if not self.model.strip():
             raise OllamaProviderError("Set OLLAMA_MODEL to a model already installed in Ollama.")
 
     def _request_json(self, path: str, payload: Dict[str, Any] | None = None) -> Dict[str, Any]:
         url = f"{self.base_url}{path}"
         data = json.dumps(payload).encode("utf-8") if payload is not None else None
-        request = Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST" if data else "GET")
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        request = Request(url, data=data, headers=headers, method="POST" if data else "GET")
         for attempt in range(len(self.TRANSIENT_RETRY_DELAYS_SECONDS) + 1):
             try:
                 with urlopen(request, timeout=self.timeout) as response:
@@ -58,6 +69,8 @@ class OllamaInstructionAdapter:
                         f"Configured Ollama model '{self.model}' is not installed. Pull it with `ollama pull {self.model}`, "
                         "or choose an installed model in OLLAMA_MODEL."
                     ) from exc
+                if exc.code in (401, 403):
+                    raise OllamaProviderError("Ollama rejected the API key. Check OLLAMA_API_KEY in your service environment.") from exc
                 raise OllamaProviderError(f"Ollama returned HTTP {exc.code} for {path}.") from exc
             except (URLError, TimeoutError, OSError) as exc:
                 if attempt < len(self.TRANSIENT_RETRY_DELAYS_SECONDS):
@@ -73,6 +86,10 @@ class OllamaInstructionAdapter:
         return parsed
 
     def is_available(self) -> tuple[bool, str]:
+        if self.is_cloud:
+            if not self.api_key:
+                return False, "OLLAMA_API_KEY is missing. Add your Ollama Cloud key in the service environment."
+            return True, f"Ollama Cloud is configured with model '{self.model}'."
         try:
             tags = self._request_json("/api/tags")
         except OllamaProviderError as exc:
@@ -200,14 +217,25 @@ class OllamaInstructionAdapter:
             f"Media/timeline context: {json.dumps(context, ensure_ascii=False, default=str)}\n"
             f"Complete user request:\n{clean}"
         )
-        result = self._request_json("/api/generate", {
-            "model": self.model,
-            "stream": False,
-            "format": schema,
-            "options": {"num_predict": 1024, "temperature": 0},
-            "prompt": prompt,
-        })
-        raw = result.get("response")
+        if self.is_cloud:
+            result = self._request_json("/api/chat", {
+                "model": self.model,
+                "stream": False,
+                "format": schema,
+                "options": {"num_predict": 1024, "temperature": 0},
+                "messages": [{"role": "user", "content": prompt}],
+            })
+            message = result.get("message")
+            raw = message.get("content") if isinstance(message, dict) else None
+        else:
+            result = self._request_json("/api/generate", {
+                "model": self.model,
+                "stream": False,
+                "format": schema,
+                "options": {"num_predict": 1024, "temperature": 0},
+                "prompt": prompt,
+            })
+            raw = result.get("response")
         if not isinstance(raw, str):
             raise OllamaProviderError("Ollama response is missing its generated JSON text.")
         try:
