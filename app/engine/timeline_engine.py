@@ -31,6 +31,8 @@ from app.models.transcript import TranscriptWord
 SCHEMA_PATH = Path(__file__).parent.parent.parent / "schema" / "timeline.schema.json"
 with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
     TIMELINE_JSON_SCHEMA = json.load(f)
+jsonschema.Draft202012Validator.check_schema(TIMELINE_JSON_SCHEMA)
+TIMELINE_VALIDATOR = jsonschema.Draft202012Validator(TIMELINE_JSON_SCHEMA)
 
 
 class TimelineValidationError(Exception):
@@ -112,7 +114,7 @@ class TimelineEngine:
         data = candidate_timeline.model_dump()
         # 1. JSON Schema validation
         try:
-            jsonschema.validate(instance=data, schema=TIMELINE_JSON_SCHEMA)
+            TIMELINE_VALIDATOR.validate(data)
         except jsonschema.ValidationError as e:
             raise TimelineValidationError(f"Timeline schema validation error: {e.message} at path {list(e.path)}")
 
@@ -130,9 +132,10 @@ class TimelineEngine:
                 raise TimelineValidationError(f"Invalid segment playback speed {seg.speed}: must be between 0.05 and 10.0")
 
         # Validate captions
+        valid_word_ids = {word.id for word in candidate_timeline.transcript.words}
         for cap in candidate_timeline.captions:
             for wid in cap.anchor_word_ids:
-                if not candidate_timeline.transcript.get_word_by_id(wid):
+                if wid not in valid_word_ids:
                     raise TimelineValidationError(f"Caption {cap.caption_id} references non-existent word ID '{wid}'")
 
     def apply_cut(
@@ -1331,7 +1334,11 @@ class TimelineEngine:
         source_intervals = params.get("source_intervals")
         if source_intervals is None:
             source_intervals = params.get("intervals")
-        if source_intervals is None and "source_start" in params and "source_end" in params:
+        if (
+            source_intervals is None
+            and params.get("source_start") is not None
+            and params.get("source_end") is not None
+        ):
             source_intervals = [[params["source_start"], params["source_end"]]]
         if source_intervals:
             params["source_intervals_ticks"] = [

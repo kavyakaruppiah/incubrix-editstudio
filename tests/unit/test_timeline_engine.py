@@ -38,6 +38,20 @@ def test_visual_edit_repairs_dangling_caption_word_anchors(base_timeline):
     }
 
 
+def test_add_opening_title_without_explicit_timing_uses_default_overlay_range(base_timeline):
+    engine = TimelineEngine(base_timeline)
+
+    operation = engine.apply_add_text_overlay(
+        "My First Edit", position="top", source_start=None, source_end=None
+    )
+
+    assert operation.operation_type.value == "add_text_overlay"
+    assert operation.parameters["source_start"] is None
+    assert operation.parameters["source_end"] is None
+    assert "source_intervals_ticks" not in operation.parameters
+    assert engine.timeline.text_overlays[-1].text == "My First Edit"
+
+
 @pytest.fixture
 def base_timeline():
     adapter = FixtureTranscriptionAdapter(FIXTURES_DIR / "sample_transcript.json")
