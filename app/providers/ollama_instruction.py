@@ -20,6 +20,25 @@ class OllamaInstructionAdapter:
     TRANSIENT_RETRY_DELAYS_SECONDS = (0.25, 0.75)
     MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 
+    @staticmethod
+    def _parse_structured_plan(raw: str) -> Dict[str, Any]:
+        """Parse JSON plans even when a model wraps them in fences or reasoning text."""
+        cleaned = re.sub(r"<think>.*?</think>", "", raw, flags=re.IGNORECASE | re.DOTALL)
+        cleaned = re.sub(r"```\s*(?:json)?\s*|```", "", cleaned, flags=re.IGNORECASE)
+        decoder = json.JSONDecoder()
+        for index, character in enumerate(cleaned):
+            if character != "{":
+                continue
+            try:
+                parsed, _ = decoder.raw_decode(cleaned, index)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(parsed, dict) and any(
+                key in parsed for key in ("actions", "unsupported", "clarification")
+            ):
+                return parsed
+        raise OllamaProviderError("Ollama did not return a valid structured plan; no edits were applied.")
+
     def __init__(
         self,
         base_url: str | None = None,
@@ -243,10 +262,7 @@ class OllamaInstructionAdapter:
             raw = result.get("response")
         if not isinstance(raw, str):
             raise OllamaProviderError("Ollama response is missing its generated JSON text.")
-        try:
-            parsed = json.loads(raw)
-        except json.JSONDecodeError as exc:
-            raise OllamaProviderError("Ollama did not return a valid structured plan; no edits were applied.") from exc
+        parsed = self._parse_structured_plan(raw)
         actions = parsed.get("actions") if isinstance(parsed, dict) else None
         unsupported = parsed.get("unsupported") if isinstance(parsed, dict) else None
         clarification = parsed.get("clarification", "") if isinstance(parsed, dict) else None

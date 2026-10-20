@@ -110,11 +110,12 @@ class AIPlanService:
                     clauses = []
                     provider = "ollama"
             except OllamaProviderError as exc:
-                if provider == "ollama":
-                    raise
-                # In auto mode, check if Gemini cloud AI is available before falling back to rules
-                gemini_adapter = GeminiInstructionAdapter()
-                avail, _ = gemini_adapter.is_available()
+                # Explicit Ollama mode must not silently call a billable Gemini API.
+                # In auto mode, Gemini remains a preferred cloud fallback.
+                avail = False
+                if provider == "auto":
+                    gemini_adapter = GeminiInstructionAdapter()
+                    avail, _ = gemini_adapter.is_available()
                 if avail:
                     try:
                         planner_context = self._planner_context(timeline, raw_prompt)
@@ -132,8 +133,8 @@ class AIPlanService:
                     clauses = self._split_compound_prompt(fallback_prompt)
                     provider = "rules_fallback"
                     provider_notice = (
-                        f"Local Ollama planning is unavailable: {exc}. This preview uses the built-in "
-                        "parser; check every operation carefully before approving."
+                        f"Ollama planning could not interpret this request ({exc}). This preview uses the built-in "
+                        "parser; verify each suggested operation before approving."
                     )
                     if self._looks_compound(fallback_prompt) and len(clauses) <= 1:
                         clauses = []

@@ -141,6 +141,17 @@ def test_ollama_adapter_rejects_malformed_model_output(monkeypatch):
         adapter.split_prompt("Add captions")
 
 
+def test_ollama_adapter_accepts_fenced_plan_with_reasoning_wrapper(monkeypatch):
+    adapter = OllamaInstructionAdapter("http://127.0.0.1:11434", "test-model", 1)
+    plan_json = json.dumps({"actions": [], "unsupported": [], "clarification": ""})
+    wrapped = f"<think>Need one safe action.</think>\n```json\n{plan_json}\n```"
+    monkeypatch.setattr(ollama_module, "urlopen", lambda request, timeout: FakeResponse({"response": wrapped}))
+
+    assert adapter.plan_prompt("Make it black and white", {}) == {
+        "actions": [], "unsupported": [], "clarification": ""
+    }
+
+
 def test_ollama_adapter_requires_explicit_installed_model():
     with pytest.raises(OllamaProviderError, match="OLLAMA_MODEL"):
         OllamaInstructionAdapter("http://127.0.0.1:11434", "", 1)

@@ -918,3 +918,27 @@ def test_auto_fallback_understands_silence_and_long_pauses_as_one_edit(mock_time
     assert plan["operations"][0]["type"] == "remove_silence"
     assert plan["operations"][0]["validation_status"] == "valid"
     assert plan["operations"][0]["parameters"]["min_silence_s"] == 1.0
+
+
+def test_explicit_ollama_uses_safe_rules_preview_when_model_plan_is_malformed(mock_timeline, monkeypatch):
+    monkeypatch.setattr(plan_service_module.timeline_service, "get_engine", lambda media_id: SimpleNamespace(timeline=mock_timeline))
+    monkeypatch.setattr(plan_service_module.settings, "INSTRUCTION_PROVIDER", "ollama")
+    monkeypatch.setattr(plan_service_module.settings, "OLLAMA_MODEL", "test-model")
+    monkeypatch.setattr(plan_service, "_parse_supported_compound", lambda prompt, timeline: None)
+
+    def malformed(self, instruction, context):
+        raise plan_service_module.OllamaProviderError("Ollama did not return a valid structured plan")
+
+    monkeypatch.setattr(plan_service_module.OllamaInstructionAdapter, "plan_prompt", malformed)
+    monkeypatch.setattr(
+        plan_service_module.GeminiInstructionAdapter,
+        "is_available",
+        lambda self: pytest.fail("Explicit Ollama mode must not call Gemini"),
+    )
+
+    plan = plan_service.generate_plan("test-media", "Remove silence and long pauses.")
+
+    assert plan["instruction_provider"] == "rules_fallback"
+    assert plan["operations_count"] == 1
+    assert plan["operations"][0]["type"] == "remove_silence"
+    assert "verify each suggested operation" in plan["provider_notice"]
