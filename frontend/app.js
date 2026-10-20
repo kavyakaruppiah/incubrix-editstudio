@@ -20,6 +20,17 @@ window.fetch = (input, init = {}) => {
   return incuBrixNativeFetch(input, init);
 };
 
+function apiErrorMessage(payload, fallback, status) {
+  const apiError = payload?.error;
+  const message = (typeof apiError === "object" && apiError?.message)
+    || (typeof apiError === "string" && apiError)
+    || payload?.detail
+    || payload?.message;
+  const code = typeof apiError === "object" ? apiError?.code : null;
+  if (message) return `${code ? `[${code}] ` : ""}${message}`;
+  return `${fallback} (HTTP ${status}); the server did not provide an error explanation.`;
+}
+
 // State Management
 let currentMediaId = null;
 let currentTimeline = null;
@@ -952,7 +963,7 @@ async function generateEditPlan() {
       body: JSON.stringify({ instruction: text }),
     });
     const plan = await res.json();
-    if (!res.ok) throw new Error(plan.detail || "Failed to generate edit plan");
+    if (!res.ok) throw new Error(apiErrorMessage(plan, "Edit plan request failed", res.status));
 
     currentPendingPlan = plan;
     displayEditPlan(plan);
@@ -1055,7 +1066,7 @@ async function approveAndApplyPlan() {
       body: JSON.stringify(currentPendingPlan),
     });
     const result = await res.json();
-    if (!res.ok) throw new Error(result.detail || "Failed to apply edit plan");
+    if (!res.ok) throw new Error(apiErrorMessage(result, "Failed to apply edit plan", res.status));
 
     if (!["applied", "partial"].includes(result.status)) {
       displayInstructionOutcome({
