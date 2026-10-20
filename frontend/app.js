@@ -234,12 +234,20 @@ const btnCloseClipModal = document.getElementById("btn-close-clip-modal");
 
 
 // --- Application Initialization ---
-document.addEventListener("DOMContentLoaded", async () => {
-  await checkReadiness();
+function initializeApp() {
+  // Bind the workspace immediately. A slow readiness probe must not leave
+  // tabs and studio controls inert while FFmpeg/AI checks are still running.
+  setupStudioTabs();
   setupNavigation();
   setupEventListeners();
-  setupStudioTabs();
-});
+  checkReadiness();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeApp, { once: true });
+} else {
+  initializeApp();
+}
 
 async function checkReadiness() {
   try {
@@ -479,16 +487,52 @@ async function fetchRecentProjects() {
 }
 
 function setupStudioTabs() {
-  document.querySelectorAll(".tab-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-      document.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));
-      btn.classList.add("active");
-      const targetId = btn.dataset.tab;
-      const targetEl = document.getElementById(targetId);
-      if (targetEl) targetEl.classList.add("active");
+  const tabBar = document.querySelector(".right-studio-panel .panel-tabs");
+  const tabButtons = document.querySelectorAll(".right-studio-panel .tab-btn[data-tab]");
+  const tabPanels = document.querySelectorAll(".right-studio-panel .tab-content");
+  const selectTab = (selectedButton) => {
+    const targetPanel = document.getElementById(selectedButton.dataset.tab);
+    if (!targetPanel) return;
+    const radio = document.getElementById(selectedButton.htmlFor);
+    if (radio) radio.checked = true;
+    tabButtons.forEach((button) => {
+      const selected = button === selectedButton;
+      button.classList.toggle("active", selected);
+      button.setAttribute("aria-selected", String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+    tabPanels.forEach((panelElement) => {
+      const selected = panelElement === targetPanel;
+      panelElement.classList.toggle("active", selected);
+      panelElement.setAttribute("aria-hidden", String(!selected));
+    });
+  };
+
+  tabButtons.forEach((btn) => {
+    btn.setAttribute("role", "tab");
+    btn.setAttribute("aria-controls", btn.dataset.tab);
+    const panel = document.getElementById(btn.dataset.tab);
+    if (panel) panel.setAttribute("role", "tabpanel");
+
+    const radio = document.getElementById(btn.htmlFor);
+    radio?.addEventListener("change", () => {
+      if (radio.checked) selectTab(btn);
     });
   });
+
+  // Delegate from the tab bar so clicks on nested badge/text nodes always
+  // activate the intended panel, including if tab labels are rebuilt later.
+  tabBar?.addEventListener("click", (event) => {
+    const clicked = event.target instanceof Element
+      ? event.target.closest(".tab-btn[data-tab]")
+      : null;
+    if (clicked && tabBar.contains(clicked)) selectTab(clicked);
+  }, true);
+
+  const initiallySelected = Array.from(tabButtons).find((button) => {
+    return document.getElementById(button.htmlFor)?.checked;
+  }) || tabButtons[0];
+  if (initiallySelected) selectTab(initiallySelected);
 }
 
 function setupEventListeners() {
@@ -571,6 +615,66 @@ function setupEventListeners() {
   // Subtitle / Transcript buttons
   if (generateTranscriptBtn) {
     generateTranscriptBtn.addEventListener("click", () => triggerAutoTranscription());
+  }
+  if (transcriptFileInputEl) {
+    transcriptFileInputEl.addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (!currentMediaId) {
+        showErrorModal("Upload a Video First", "Load a video or demo project before importing subtitles.");
+        event.target.value = "";
+        return;
+      }
+
+      try {
+        const body = new FormData();
+        body.append("file", file);
+        const response = await fetch(`/api/v1/transcript/${encodeURIComponent(currentMediaId)}/upload`, {
+          method: "POST",
+          body,
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(formatApiError(result.detail) || "Subtitle import failed.");
+        await refreshTimeline();
+        await fetchSmartSuggestions();
+        document.querySelector('.tab-btn[data-tab="tab-captions"]')?.click();
+        displayInstructionOutcome({ status: "applied", message: `${result.word_count || 0} subtitle words were imported from ${file.name}.` });
+      } catch (error) {
+        showErrorModal("Subtitle Import Failed", error.message || "Could not import this subtitle file.");
+      } finally {
+        event.target.value = "";
+      }
+    });
+  }
+  if (voiceoverFileInputEl) {
+    voiceoverFileInputEl.addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (!currentMediaId) {
+        showErrorModal("Upload a Video First", "Load a video or demo project before importing a voice-over document.");
+        event.target.value = "";
+        return;
+      }
+
+      try {
+        const body = new FormData();
+        body.append("file", file);
+        const response = await fetch(`/api/v1/voiceover/${encodeURIComponent(currentMediaId)}/upload`, {
+          method: "POST",
+          body,
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(formatApiError(result.detail) || "Voice-over document import failed.");
+        await refreshTimeline();
+        await fetchSmartSuggestions();
+        document.querySelector('.tab-btn[data-tab="tab-captions"]')?.click();
+        displayInstructionOutcome({ status: "applied", message: result.message || "The script was aligned and captions were added." });
+      } catch (error) {
+        showErrorModal("Voice-Over Import Failed", error.message || "Could not process this voice-over document.");
+      } finally {
+        event.target.value = "";
+      }
+    });
   }
   if (loadSampleTranscriptBtn) {
     loadSampleTranscriptBtn.addEventListener("click", () => loadSampleTranscript());
@@ -811,6 +915,7 @@ function enableWorkspaceControls() {
   if (exportOtioBtn) exportOtioBtn.disabled = false;
   if (undoBtn) undoBtn.disabled = false;
   if (redoBtn) redoBtn.disabled = false;
+  document.querySelectorAll(".studio-media-hint").forEach((hint) => hint.classList.add("hidden"));
 }
 
 function disableWorkspaceControls() {
@@ -829,6 +934,7 @@ function disableWorkspaceControls() {
   ].forEach((control) => {
     if (control) control.disabled = true;
   });
+  document.querySelectorAll(".studio-media-hint").forEach((hint) => hint.classList.remove("hidden"));
 }
 
 // --- AI Understanding and Edit Planning (Scene 4 & Scene 5) ---
@@ -1011,7 +1117,11 @@ async function transcribeForApprovedCaptionPlan() {
 // Direct natural language instruction execution
 async function executeInstruction(overrideText = null) {
   const text = overrideText || instructionInputEl.value.trim();
-  if (!text || !currentMediaId) return;
+  if (!text) return;
+  if (!currentMediaId) {
+    showErrorModal("Upload a Video First", "Upload a video or open an existing project before applying an edit.");
+    return;
+  }
 
   // In AI mode, never bypass the reviewed plan and apply model output directly.
   if (!overrideText && ["ollama", "auto"].includes(instructionProvider)) {
@@ -1390,8 +1500,12 @@ async function deleteTimelineClip() {
 // --- Titles & Audio Finishing (Scene 8) ---
 async function addOpeningTitleCard() {
   const text = openingTitleText.value.trim();
-  if (!text || !currentMediaId) {
-    alert("Please enter title text.");
+  if (!text) {
+    showErrorModal("Title Text Required", "Enter the opening title text first.");
+    return;
+  }
+  if (!currentMediaId) {
+    showErrorModal("Upload a Video First", "Upload a video or open an existing project before adding a title card.");
     return;
   }
   const dur = parseFloat(openingTitleDur.value) || 3.5;
@@ -1414,8 +1528,12 @@ async function addOpeningTitleCard() {
 
 async function addClosingTitleCard() {
   const text = closingTitleText.value.trim();
-  if (!text || !currentMediaId) {
-    alert("Please enter closing title text.");
+  if (!text) {
+    showErrorModal("Closing Title Text Required", "Enter the closing title text first.");
+    return;
+  }
+  if (!currentMediaId) {
+    showErrorModal("Upload a Video First", "Upload a video or open an existing project before adding a title card.");
     return;
   }
 
@@ -1435,7 +1553,10 @@ async function addClosingTitleCard() {
 }
 
 async function applyBgmSettings() {
-  if (!currentMediaId) return;
+  if (!currentMediaId) {
+    showErrorModal("Upload a Video First", "Upload a video or open an existing project before saving audio settings.");
+    return;
+  }
   const enabled = bgmToggle.checked;
   const volume = parseFloat(bgmVolumeSlider.value) / 100.0;
   const ducking = bgmDuckingToggle.checked;
@@ -1862,7 +1983,9 @@ function applyCaptionPreset(preset) {
     captionOutlineColor.value = "#000000";
     captionOutlineWidthSlider.value = 3;
     captionBgBox.checked = false;
-    executeInstruction("set caption mode to karaoke");
+    const karaokeMode = document.querySelector('input[name="caption_mode"][value="karaoke"]');
+    if (karaokeMode) karaokeMode.checked = true;
+    if (currentMediaId) executeInstruction("set caption mode to karaoke");
   } else if (preset === "cinematic") {
     captionTextColor.value = "#E2E8F0";
     captionOutlineColor.value = "#0F172A";
@@ -1883,7 +2006,10 @@ function applyCaptionPreset(preset) {
 }
 
 async function applyCaptionStyleFromStudio() {
-  if (!currentMediaId) return;
+  if (!currentMediaId) {
+    showErrorModal("Upload a Video First", "Upload a video or open an existing project before applying caption styling.");
+    return;
+  }
 
   const stylePayload = {
     font_family: captionFontFamilySelect.value,

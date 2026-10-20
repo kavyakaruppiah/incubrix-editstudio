@@ -1302,7 +1302,24 @@ video {
   border-left: 1px solid var(--border-color);
 }
 
+/* Keep tool navigation available even when the application script is delayed or fails. */
+.right-studio-panel .studio-tab-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  pointer-events: none;
+  white-space: nowrap;
+  border: 0;
+}
+
 .panel-tabs {
+  position: relative;
+  z-index: 30;
+  isolation: isolate;
   height: 48px;
   background: rgba(14, 20, 32, 0.98);
   border-bottom: 1px solid var(--border-color);
@@ -1314,6 +1331,10 @@ video {
   flex-shrink: 0;
 }
 .tab-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
   background: transparent;
   border: none;
   color: var(--text-muted);
@@ -1323,6 +1344,7 @@ video {
   padding: 6px 10px;
   border-radius: var(--radius-sm);
   cursor: pointer;
+  pointer-events: auto;
   transition: all var(--transition-fast);
   white-space: nowrap;
 }
@@ -1335,6 +1357,18 @@ video {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
 }
+.studio-tab-radio:focus-visible + .panel-tabs,
+.panel-tabs:focus-within {
+  outline: none;
+}
+#studio-tab-transcript:focus-visible ~ .panel-tabs label[for="studio-tab-transcript"],
+#studio-tab-captions:focus-visible ~ .panel-tabs label[for="studio-tab-captions"],
+#studio-tab-titles-audio:focus-visible ~ .panel-tabs label[for="studio-tab-titles-audio"],
+#studio-tab-effects:focus-visible ~ .panel-tabs label[for="studio-tab-effects"],
+#studio-tab-suggestions:focus-visible ~ .panel-tabs label[for="studio-tab-suggestions"] {
+  outline: 2px solid var(--accent-violet);
+  outline-offset: 2px;
+}
 
 .tab-content {
   display: none;
@@ -1345,6 +1379,23 @@ video {
 }
 .tab-content.active {
   display: flex;
+}
+
+/* Radio state is the source of truth for panels; this is independent of app.js. */
+.right-studio-panel .tab-content { display: none; }
+#studio-tab-transcript:checked ~ #tab-transcript,
+#studio-tab-captions:checked ~ #tab-captions,
+#studio-tab-titles-audio:checked ~ #tab-titles-audio,
+#studio-tab-effects:checked ~ #tab-effects,
+#studio-tab-suggestions:checked ~ #tab-suggestions { display: flex; }
+#studio-tab-transcript:checked ~ .panel-tabs label[for="studio-tab-transcript"],
+#studio-tab-captions:checked ~ .panel-tabs label[for="studio-tab-captions"],
+#studio-tab-titles-audio:checked ~ .panel-tabs label[for="studio-tab-titles-audio"],
+#studio-tab-effects:checked ~ .panel-tabs label[for="studio-tab-effects"],
+#studio-tab-suggestions:checked ~ .panel-tabs label[for="studio-tab-suggestions"] {
+  color: #fff;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
 }
 
 .studio-section {

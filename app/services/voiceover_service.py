@@ -79,6 +79,7 @@ class VoiceoverService:
 
         # 5. Commit new transcript to timeline
         timeline.transcript = aligned_transcript
+        caption_repairs = timeline.reconcile_caption_anchors()
 
         # 6. Generate synchronized captions from the voice-over script if requested
         captions_added = 0
@@ -97,6 +98,7 @@ class VoiceoverService:
             "media_id": media_id,
             "filename": filename,
             "word_count": len(aligned_transcript.words),
+            "caption_repairs": caption_repairs,
             "reference_audio_words_count": len(audio_words),
             "captions_generated": captions_added,
             "synthesized_audio": str(synthesized_path) if synthesized_path else None,

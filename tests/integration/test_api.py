@@ -3,6 +3,10 @@ import uuid
 from pathlib import Path
 from fastapi.testclient import TestClient
 from app.main import app
+from app.config import settings
+from app.models.timeline import TimelineCaption
+from app.models.transcript import Transcript, TranscriptWord
+from app.services.timeline_service import timeline_service
 from app.utils.idempotency import IdempotencyStore
 
 client = TestClient(app)
@@ -293,6 +297,47 @@ def test_caption_style_studio_endpoint_saves_renderable_ass_style():
 
     persisted = client.get(f"/api/v1/timeline/{media_id}")
     assert persisted.json()["global_caption_style"]["primary_color"] == "&H0020A0F0"
+
+
+def test_deleting_caption_word_does_not_block_later_color_grade(monkeypatch):
+    monkeypatch.setattr(settings, "INSTRUCTION_PROVIDER", "rules")
+    source_path = FIXTURES_DIR / "sample_with_audio.mp4"
+    with source_path.open("rb") as source_file:
+        upload_res = client.post(
+            "/api/v1/media/upload",
+            files={"file": ("dangling_caption_anchor.mp4", source_file, "video/mp4")},
+        )
+    assert upload_res.status_code == 200, upload_res.text
+    media_id = upload_res.json()["media_id"]
+
+    timeline = timeline_service.get_timeline(media_id)
+    assert timeline is not None
+    timeline.transcript = Transcript(words=[
+        TranscriptWord(id="w_0303", text="sample", start=1.0, end=1.4),
+    ])
+    timeline.captions = [TimelineCaption(
+        caption_id="cap_e2ad635a",
+        text="sample",
+        anchor_word_ids=["w_0303"],
+    )]
+    timeline_service.save_timeline(timeline)
+
+    delete_res = client.delete(f"/api/v1/transcript/{media_id}/word/w_0303")
+    assert delete_res.status_code == 200, delete_res.text
+    assert delete_res.json()["caption_repairs"] == {
+        "removed_anchor_count": 1,
+        "removed_caption_ids": ["cap_e2ad635a"],
+    }
+
+    effect_res = client.post(
+        f"/api/v1/instruction/{media_id}",
+        json={"instruction": "Convert the video to black and white"},
+    )
+    assert effect_res.status_code == 200, effect_res.text
+    assert effect_res.json()["status"] == "applied"
+    persisted = client.get(f"/api/v1/timeline/{media_id}")
+    assert persisted.json()["video_effects"]["color_grade"] == "grayscale"
+    assert persisted.json()["captions"] == []
 
 
 def test_project_reopens_uploaded_source_for_browser_preview():

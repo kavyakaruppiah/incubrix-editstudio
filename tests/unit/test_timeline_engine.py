@@ -3,11 +3,39 @@ from pathlib import Path
 from app.engine.canonical_hash import compute_timeline_hash
 from app.engine.timeline_engine import TimelineEngine, TimelineValidationError
 from app.models.media import MediaMetadata
-from app.models.timeline import Timeline, TimelineSegment
+from app.models.timeline import Timeline, TimelineCaption, TimelineSegment
 from app.engine.time_policy import compute_segment_output_offsets
 from app.transcription.fixture_adapter import FixtureTranscriptionAdapter
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
+
+
+def test_visual_edit_repairs_dangling_caption_word_anchors(base_timeline):
+    first_word, removed_word = base_timeline.transcript.words[:2]
+    base_timeline.captions = [
+        TimelineCaption(
+            caption_id="cap_partial",
+            text=f"{first_word.text} {removed_word.text}",
+            anchor_word_ids=[first_word.id, removed_word.id],
+        ),
+        TimelineCaption(
+            caption_id="cap_orphaned",
+            text=removed_word.text,
+            anchor_word_ids=[removed_word.id],
+        ),
+    ]
+    assert base_timeline.transcript.delete_word(removed_word.id)
+    engine = TimelineEngine(base_timeline)
+
+    operation = engine.apply_color_grade(preset="grayscale")
+
+    assert engine.timeline.video_effects.color_grade == "grayscale"
+    assert len(engine.timeline.captions) == 1
+    assert engine.timeline.captions[0].anchor_word_ids == [first_word.id]
+    assert operation.parameters["caption_anchor_repairs"] == {
+        "removed_anchor_count": 2,
+        "removed_caption_ids": ["cap_orphaned"],
+    }
 
 
 @pytest.fixture

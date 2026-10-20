@@ -253,13 +253,19 @@ async def upload_transcript(
         timeline = timeline_service.get_timeline(media_id)
         if timeline:
             timeline.transcript = transcript
+            caption_repairs = timeline.reconcile_caption_anchors()
             timeline_service.save_timeline(timeline)
+        else:
+            caption_repairs = {"removed_anchor_count": 0, "removed_caption_ids": []}
+    else:
+        caption_repairs = {"removed_anchor_count": 0, "removed_caption_ids": []}
 
     resp_data = {
         "media_id": media_id,
         "word_count": len(transcript.words) if transcript else 0,
         "language": getattr(transcript, "language", "en"),
         "status": "uploaded",
+        "caption_repairs": caption_repairs,
     }
     save_idempotency_record(idempotency_key, upload_payload, 200, resp_data)
     return resp_data
@@ -323,8 +329,14 @@ def delete_transcript_word(media_id: str, word_id: str):
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Word ID '{word_id}' not found")
 
+    caption_repairs = timeline.reconcile_caption_anchors()
     timeline_service.save_timeline(timeline)
-    return {"status": "deleted", "word_id": word_id, "remaining_words": len(timeline.transcript.words)}
+    return {
+        "status": "deleted",
+        "word_id": word_id,
+        "remaining_words": len(timeline.transcript.words),
+        "caption_repairs": caption_repairs,
+    }
 
 
 @router.get("/transcript/{media_id}/search")
@@ -382,8 +394,16 @@ def load_sample_transcript(media_id: str):
     timeline = timeline_service.get_timeline(media_id)
     if timeline:
         timeline.transcript = transcript
+        caption_repairs = timeline.reconcile_caption_anchors()
         timeline_service.save_timeline(timeline)
-    return {"media_id": media_id, "word_count": len(transcript.words), "status": "sample_loaded"}
+    else:
+        caption_repairs = {"removed_anchor_count": 0, "removed_caption_ids": []}
+    return {
+        "media_id": media_id,
+        "word_count": len(transcript.words),
+        "status": "sample_loaded",
+        "caption_repairs": caption_repairs,
+    }
 
 
 # 3b. Voice-Over Document Ingestion & Synchronization (PDF, Word .docx, text)
@@ -455,6 +475,7 @@ def generate_transcript(
         timeline = timeline_service.get_timeline(media_id)
         if timeline:
             timeline.transcript = transcript
+            timeline.reconcile_caption_anchors()
             timeline_service.save_timeline(timeline)
         return {
             "word_count": len(transcript.words),

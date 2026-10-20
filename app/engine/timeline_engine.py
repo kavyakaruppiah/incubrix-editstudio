@@ -1318,6 +1318,7 @@ class TimelineEngine:
         provenance: str,
     ) -> None:
         """Validate candidate timeline and commit atomically."""
+        caption_repairs = candidate.reconcile_caption_anchors()
         self.validate_timeline(candidate)
 
         # Clear redo stack on new operation
@@ -1337,6 +1338,8 @@ class TimelineEngine:
                 [int(round(float(start) * TICKS_PER_SECOND)), int(round(float(end) * TICKS_PER_SECOND))]
                 for start, end in source_intervals
             ]
+        if caption_repairs["removed_anchor_count"]:
+            params["caption_anchor_repairs"] = caption_repairs
 
         op_id = f"op_{uuid.uuid4().hex[:8]}"
         candidate.history = [

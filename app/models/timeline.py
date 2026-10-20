@@ -189,6 +189,34 @@ class Timeline(BaseModel):
                 )
         return self
 
+    def reconcile_caption_anchors(self) -> Dict[str, Any]:
+        """Remove caption anchors that no longer exist in the current transcript.
+
+        Transcript replacement/deletion can otherwise leave persisted captions
+        pointing at obsolete word IDs, causing every later timeline edit to fail
+        validation even when the new edit is unrelated to captions.
+        """
+        valid_word_ids = {word.id for word in self.transcript.words}
+        removed_anchor_ids: List[str] = []
+        removed_caption_ids: List[str] = []
+        retained: List[TimelineCaption] = []
+
+        for caption in self.captions:
+            original_ids = list(caption.anchor_word_ids)
+            valid_ids = [word_id for word_id in original_ids if word_id in valid_word_ids]
+            removed_anchor_ids.extend(word_id for word_id in original_ids if word_id not in valid_word_ids)
+            if original_ids and not valid_ids:
+                removed_caption_ids.append(caption.caption_id)
+                continue
+            caption.anchor_word_ids = valid_ids
+            retained.append(caption)
+
+        self.captions = retained
+        return {
+            "removed_anchor_count": len(removed_anchor_ids),
+            "removed_caption_ids": removed_caption_ids,
+        }
+
 
     @property
     def total_output_duration(self) -> float:

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/app.css">
+  <link rel="stylesheet" href="/static/app.css?v=20261020-studio-tabs-v3">
 </head>
 <body>
   <!-- SCENE 1: WELCOME / LANDING SCREEN -->
@@ -484,18 +484,23 @@
 
       <!-- Right Column: Studio Tools & Settings -->
       <section class="panel right-studio-panel">
-        <div class="panel-tabs">
-          <button class="tab-btn active" data-tab="tab-transcript">Transcript</button>
-          <button class="tab-btn" data-tab="tab-captions">Captions</button>
-          <button class="tab-btn" data-tab="tab-titles-audio">Titles & Audio</button>
-          <button class="tab-btn" data-tab="tab-effects">Effects</button>
-          <button class="tab-btn" data-tab="tab-suggestions">
+        <input class="studio-tab-radio" type="radio" name="studio-tool-tab" id="studio-tab-transcript" checked>
+        <input class="studio-tab-radio" type="radio" name="studio-tool-tab" id="studio-tab-captions">
+        <input class="studio-tab-radio" type="radio" name="studio-tool-tab" id="studio-tab-titles-audio">
+        <input class="studio-tab-radio" type="radio" name="studio-tool-tab" id="studio-tab-effects">
+        <input class="studio-tab-radio" type="radio" name="studio-tool-tab" id="studio-tab-suggestions">
+        <div class="panel-tabs" role="tablist" aria-label="Editor tools">
+          <label class="tab-btn" role="tab" aria-controls="tab-transcript" for="studio-tab-transcript" data-tab="tab-transcript">Transcript</label>
+          <label class="tab-btn" role="tab" aria-controls="tab-captions" for="studio-tab-captions" data-tab="tab-captions">Captions</label>
+          <label class="tab-btn" role="tab" aria-controls="tab-titles-audio" for="studio-tab-titles-audio" data-tab="tab-titles-audio">Titles &amp; Audio</label>
+          <label class="tab-btn" role="tab" aria-controls="tab-effects" for="studio-tab-effects" data-tab="tab-effects">Effects</label>
+          <label class="tab-btn" role="tab" aria-controls="tab-suggestions" for="studio-tab-suggestions" data-tab="tab-suggestions">
             Suggestions <span id="suggestion-badge" class="badge-mini">0</span>
-          </button>
+          </label>
         </div>
 
         <!-- TAB 1: TRANSCRIPT STUDIO -->
-        <div id="tab-transcript" class="tab-content active">
+        <div id="tab-transcript" class="tab-content" role="tabpanel">
           <div class="transcript-search-row">
             <input type="text" id="transcript-search-input" placeholder="Search spoken words...">
             <button id="btn-search-transcript" class="btn btn-secondary btn-sm">Search</button>
@@ -532,7 +537,7 @@
 
           <!-- Words Display Container -->
           <div id="transcript-words-container" class="transcript-content">
-            <div class="empty-state">Upload media or load transcript to view spoken words.</div>
+            <div class="empty-state">No video loaded. Use Browse Files or Load Demo File to enable transcription and captions.</div>
           </div>
 
           <!-- Inline Word Editor Card -->
@@ -569,7 +574,8 @@
         </div>
 
         <!-- TAB 2: CAPTIONS STUDIO -->
-        <div id="tab-captions" class="tab-content">
+        <div id="tab-captions" class="tab-content" role="tabpanel">
+          <p class="studio-media-hint">To apply caption styles to a video, first use Browse Files or Load Demo File in Source &amp; Assets.</p>
           <div class="studio-section">
             <h3>Caption Style Presets</h3>
             <div class="preset-buttons">
@@ -657,7 +663,8 @@
         </div>
 
         <!-- TAB 3: TITLES & AUDIO STUDIO (SCENE 8) -->
-        <div id="tab-titles-audio" class="tab-content">
+        <div id="tab-titles-audio" class="tab-content" role="tabpanel">
+          <p class="studio-media-hint">To apply titles or audio settings, first use Browse Files or Load Demo File in Source &amp; Assets.</p>
           <div class="studio-section">
             <h3>Title Cards</h3>
             <div class="form-group">
@@ -730,7 +737,7 @@
         </div>
 
         <!-- TAB 4: EFFECTS & CANVAS FORMAT -->
-        <div id="tab-effects" class="tab-content">
+        <div id="tab-effects" class="tab-content" role="tabpanel">
           <div class="studio-section">
             <h3>Canvas Aspect Ratio</h3>
             <div class="aspect-buttons">
@@ -765,7 +772,7 @@
         </div>
 
         <!-- TAB 5: SMART SUGGESTIONS -->
-        <div id="tab-suggestions" class="tab-content">
+        <div id="tab-suggestions" class="tab-content" role="tabpanel">
           <div class="suggestions-header">
             <h3>AI & Heuristic Recommendations</h3>
             <button id="btn-refresh-suggestions" class="btn btn-secondary btn-sm">Refresh</button>
@@ -964,6 +971,6 @@
     </div>
   </div>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=20261020-studio-tabs-v3"></script>
 </body>
 </html>
